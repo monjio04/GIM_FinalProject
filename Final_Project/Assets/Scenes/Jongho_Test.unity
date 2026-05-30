@@ -487,11 +487,11 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 1244089583}
+    m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: f04ab8c70e758c446af7ff15811144d5, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 5.4917073
+      value: -3.9157128
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f04ab8c70e758c446af7ff15811144d5, type: 3}
       propertyPath: m_LocalPosition.y
@@ -499,7 +499,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f04ab8c70e758c446af7ff15811144d5, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.67930984
+      value: -16.4916
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f04ab8c70e758c446af7ff15811144d5, type: 3}
       propertyPath: m_LocalRotation.w
@@ -531,12 +531,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: f04ab8c70e758c446af7ff15811144d5, type: 3}
       propertyPath: m_Name
-      value: Fireman Walking
+      value: Player
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: f04ab8c70e758c446af7ff15811144d5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 547905544}
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: f04ab8c70e758c446af7ff15811144d5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1726606295}
   m_SourcePrefab: {fileID: 100100000, guid: f04ab8c70e758c446af7ff15811144d5, type: 3}
 --- !u!4 &159630001 stripped
 Transform:
@@ -1932,13 +1938,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 547905541}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: 0.6149358, z: -0, w: 0.7885772}
-  m_LocalPosition: {x: -5.704, y: 1, z: -16.758}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.813, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 75.895, z: 0}
+  m_Father: {fileID: 159630001}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &547905545
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2737,7 +2743,6 @@ Transform:
   m_Children:
   - {fileID: 502599079}
   - {fileID: 128526499}
-  - {fileID: 159630001}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1693131507
@@ -2845,6 +2850,30 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 41d5dba7c674a8b4eaf007f25f25183a, type: 3}
   m_PrefabInstance: {fileID: 1706366379}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1726606294 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: f04ab8c70e758c446af7ff15811144d5, type: 3}
+  m_PrefabInstance: {fileID: 159630000}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1726606295
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1726606294}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39dcd654994fc4cfb839222bb8665d30, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MainCharacter
+  walkSpeed: 3
+  runSpeed: 6
+  gravity: -9.8
+  playerTransform: {fileID: 159630001}
+  cameraTransform: {fileID: 547905544}
+  mouseSensitivity: 2
+  interactDistance: 5
 --- !u!1 &1749109646
 GameObject:
   m_ObjectHideFlags: 0
@@ -3251,8 +3280,8 @@ Transform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 547905544}
   - {fileID: 289030090}
   - {fileID: 1237221730}
   - {fileID: 940790484}
+  - {fileID: 159630000}
   - {fileID: 1244089583}
