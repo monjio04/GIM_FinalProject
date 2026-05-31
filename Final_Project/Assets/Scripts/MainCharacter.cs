@@ -1,14 +1,18 @@
-
 using UnityEngine;
 
 public class MainCharacter : MonoBehaviour
 {
     CharacterController controller;
 
-    [Header("Movement")]
-    public float walkSpeed = 3f;
-    public float runSpeed = 6f;
-    public float gravity = -9.8f;
+    [Header("Movement - Normal (장비 미장착)")]
+    public float normalWalkSpeed = 5f;
+    public float normalRunSpeed = 9f;
+
+    [Header("Movement - Heavy (25kg 장비 장착)")]
+    public float heavyWalkSpeed = 2.5f;
+    public float heavyRunSpeed = 4.5f;
+
+    [HideInInspector] public float gravity = -9.8f; // 기존 값 유지 (-9.8f)
 
     [Header("Camera")]
     public Transform playerTransform;
@@ -18,10 +22,14 @@ public class MainCharacter : MonoBehaviour
     [Header("Interaction")]
     public float interactDistance = 5f;
 
+    [Header("Scene 2 Conditions")]
+    // 이 체크박스가 켜져 있으면 무거운 속도가 적용됩니다. (씬2 시작 시 체크 켜두기)
+    public bool hasHeavyEquipment = true; 
+
     float cameraXRotation = 0f;
     float yVelocity = 0f;
-	
-	Animator animator;
+    
+    Animator animator;
 
     void Start()
     {
@@ -35,6 +43,30 @@ public class MainCharacter : MonoBehaviour
 
     void Update()
     {
+<<<<<<< Updated upstream
+=======
+        // 1. 대화창이나 인벤토리가 열려 있을 때 멈춤
+        if (InventoryUI.Instance != null && InventoryUI.Instance.inventoryBaseUI.activeSelf)
+        {
+            animator.SetFloat("Speed", 0f);
+            return; 
+        }
+
+        if (TalkManager.Instance != null && TalkManager.Instance.talkUI.activeSelf)
+        {
+            animator.SetFloat("Speed", 0f);
+            return;
+        }
+
+        // 2. [추가 조건] 체력이 다해 탈진(Exhausted) 상태일 때 강제로 멈춤
+        if (PlayerHealth.Instance != null && PlayerHealth.Instance.IsExhausted)
+        {
+            animator.SetFloat("Speed", 0f);
+            return;
+        }
+
+        // 인벤토리도 안 켜져 있고 탈진도 아닐 때만 정상 조작 가능
+>>>>>>> Stashed changes
         PlayerMovement();
         CameraLook();
         DetectObject();
@@ -44,6 +76,10 @@ public class MainCharacter : MonoBehaviour
     {
         float keyX = Input.GetAxis("Horizontal");
         float keyZ = Input.GetAxis("Vertical");
+
+        // [추가 조건 1] 장비 착용 여부에 따라 베이스 속도를 삼항 연산자로 결정합니다.
+        float walkSpeed = hasHeavyEquipment ? heavyWalkSpeed : normalWalkSpeed;
+        float runSpeed = hasHeavyEquipment ? heavyRunSpeed : normalRunSpeed;
 
         float currentSpeed = walkSpeed;
 
@@ -119,9 +155,6 @@ public class MainCharacter : MonoBehaviour
                 ray.direction * hit.distance,
                 Color.green
             );
-
-            // 예시
-            // Debug.Log(hit.collider.name);
         }
         else
         {

@@ -12,9 +12,17 @@ public class TalkManager : MonoBehaviour
 
     DialogueData currentDialogue;
 
+    public static TalkManager Instance;
+
     int currentIndex;
 
     bool isTalking;
+
+    private void Awake()
+    {
+        Instance = this; 
+        
+    }
 
     void Start()
     {
