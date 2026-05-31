@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: acef9bb8e13ae46a89125e836b317e70, type: 3}
   m_Name: example
   m_EditorClassIdentifier: Assembly-CSharp::QuestData
-  questID: 0
-  title: 
-  description: 
+  questID: 1
+  title: turn off the fire
+  description: 'take a fire extinguisher '

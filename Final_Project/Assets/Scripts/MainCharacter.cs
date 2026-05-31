@@ -35,6 +35,13 @@ public class MainCharacter : MonoBehaviour
 
     void Update()
     {
+        if (InventoryUI.Instance != null && InventoryUI.Instance.inventoryBaseUI.activeSelf)
+        {
+            // 이때 움직임 애니메이션을 0으로 만들어 제자리에 서있게 만듭니다.
+            animator.SetFloat("Speed", 0f);
+            return; 
+        }
+
         PlayerMovement();
         CameraLook();
         DetectObject();
