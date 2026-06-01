@@ -9,9 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: acef9bb8e13ae46a89125e836b317e70, type: 3}
+  m_Script: {fileID: 11500000, guid: 6ae79093951da44348e52ba0d85d761b, type: 3}
   m_Name: example
   m_EditorClassIdentifier: Assembly-CSharp::QuestData
   questID: 1
-  title: turn off the fire
-  description: 'take a fire extinguisher '
+  title: "\uC7A5\uBE44\uB97C \uB4E4\uACE0 \uD604\uC7A5\uC5D0 \uB3C4\uCC29\uD558\uB77C"
+  description: 

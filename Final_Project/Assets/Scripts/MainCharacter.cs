@@ -35,9 +35,9 @@ public class MainCharacter : MonoBehaviour
 
     void Update()
     {
-        if (InventoryUI.Instance != null && InventoryUI.Instance.inventoryBaseUI.activeSelf)
+        if ((InventoryUI.Instance != null && InventoryUI.Instance.inventoryBaseUI.activeSelf) || 
+            (TalkManager.Instance != null && TalkManager.Instance.ShouldFreezePlayer))
         {
-            // 이때 움직임 애니메이션을 0으로 만들어 제자리에 서있게 만듭니다.
             animator.SetFloat("Speed", 0f);
             return; 
         }
@@ -113,30 +113,23 @@ public class MainCharacter : MonoBehaviour
 
     void DetectObject()
     {
-        Ray ray = Camera.main.ViewportPointToRay(
-            new Vector3(0.5f, 0.5f, 0f)
-        );
-
+        Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
         RaycastHit hit;
 
         if (Physics.Raycast(ray, out hit, interactDistance))
         {
-            Debug.DrawRay(
-                ray.origin,
-                ray.direction * hit.distance,
-                Color.green
-            );
-
-            // 예시
-            // Debug.Log(hit.collider.name);
-        }
-        else
-        {
-            Debug.DrawRay(
-                ray.origin,
-                ray.direction * interactDistance,
-                Color.red
-            );
+            IInteractable interactable = hit.collider.GetComponent<IInteractable>();
+            
+            if (interactable != null)
+            {
+                // TODO: UI에 "[E] 상호작용" 텍스트 띄우기
+                
+                // E키를 눌렀을 때 상호작용 실행[cite: 1]
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    interactable.Interact();
+                }
+            }
         }
     }
 }

@@ -1,71 +1,94 @@
+using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 
 public class TalkManager : MonoBehaviour
 {
-    public GameObject talkUI;
+    public static TalkManager Instance;
 
+    public GameObject talkUI;
     public TextMeshProUGUI speakerText;
     public TextMeshProUGUI dialogueText;
 
-    public DialogueData testDialogue;
+    private DialogueData currentDialogue;
+    private int currentIndex;
+    private bool isTalking;
+    private Action onDialogueEndCallback;
 
-    DialogueData currentDialogue;
+    public bool IsTalking => isTalking;
+    public bool ShouldFreezePlayer => isTalking && currentDialogue != null && currentDialogue.freezePlayer;
 
-    int currentIndex;
-
-    bool isTalking;
-
-    void Start()
+    private void Awake()
     {
-        StartDialogue(testDialogue);
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
     }
 
-    void Update()
+    public void StartDialogue(DialogueData dialogue, Action onEndCallback = null)
     {
-        if (!isTalking)
-            return;
+        if (isTalking) StopAllCoroutines();
 
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            NextLine();
-        }
-    }
-
-    public void StartDialogue(DialogueData dialogue)
-    {
         currentDialogue = dialogue;
-
         currentIndex = 0;
-
-        isTalking = true;
+        onDialogueEndCallback = onEndCallback;
 
         talkUI.SetActive(true);
 
-        speakerText.text = dialogue.speaker;
+        if (dialogue.dialogueType == DialogueType.Monologue || dialogue.dialogueType == DialogueType.Narration)
+            speakerText.text = "";
+        else
+            speakerText.text = dialogue.speaker;
 
-        dialogueText.text =
-            dialogue.lines[currentIndex];
+        StartCoroutine(DisplayDialogueRoutine());
     }
 
-    void NextLine()
+    IEnumerator DisplayDialogueRoutine()
     {
-        currentIndex++;
+        isTalking = true;
 
-        if (currentIndex >= currentDialogue.lines.Length)
+        while (currentIndex < currentDialogue.lines.Length)
         {
-            EndDialogue();
-            return;
+            string line = currentDialogue.lines[currentIndex];
+
+            if (line.Contains("//"))
+            {
+                string[] parts = line.Split(new string[] { "//" }, StringSplitOptions.None);
+                for (int i = 0; i < parts.Length; i++)
+                {
+                    dialogueText.text = parts[i].Trim();
+                    talkUI.SetActive(true);
+
+                    yield return new WaitForSeconds(currentDialogue.autoDisplayTime);
+
+                    if (i < parts.Length - 1)
+                    {
+                        talkUI.SetActive(false);
+                        yield return new WaitForSeconds(0.5f);
+                    }
+                }
+            }
+            else
+            {
+                dialogueText.text = line;
+                yield return new WaitForSeconds(currentDialogue.autoDisplayTime);
+            }
+
+            currentIndex++;
         }
 
-        dialogueText.text =
-            currentDialogue.lines[currentIndex];
+        EndDialogue();
     }
 
     void EndDialogue()
     {
         isTalking = false;
-
         talkUI.SetActive(false);
+
+        if (onDialogueEndCallback != null)
+        {
+            onDialogueEndCallback.Invoke();
+            onDialogueEndCallback = null;
+        }
     }
 }
