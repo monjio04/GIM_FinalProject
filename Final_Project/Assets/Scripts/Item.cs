@@ -8,6 +8,9 @@ public class Item : MonoBehaviour, IInteractable
     [Header("획득 시 터질 독백 데이터")]
     public DialogueData pickupDialogue; 
 
+    [Header("상호작용 안내 문구")]
+    public string interactionPrompt = "[E] 장비 챙기기";
+
     public void Interact()
     {
         // 1. 작성하신 인벤토리 매니저에 아이템 추가 시도
@@ -24,5 +27,10 @@ public class Item : MonoBehaviour, IInteractable
             // 3. 아이템을 주웠으므로 맵(필드)에서 오브젝트 제거
             Destroy(gameObject);
         }
+    }
+
+    public string GetPromptText()
+    {
+        return interactionPrompt;
     }
 }

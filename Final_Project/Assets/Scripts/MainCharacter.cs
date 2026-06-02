@@ -6,8 +6,8 @@ public class MainCharacter : MonoBehaviour
     CharacterController controller;
 
     [Header("Movement")]
-    public float walkSpeed = 3f;
-    public float runSpeed = 6f;
+    public float walkSpeed = 1.0f;
+    public float runSpeed = 3.0f;
     public float gravity = -9.8f;
 
     [Header("Camera")]
@@ -15,8 +15,12 @@ public class MainCharacter : MonoBehaviour
     public Transform cameraTransform;
     public float mouseSensitivity = 2f;
 
-    [Header("Interaction")]
-    public float interactDistance = 5f;
+    [Header("상호작용 설정")]
+    [Tooltip("레이캐스트가 뻗어나가는 총 거리입니다.")]
+    public float interactDistance = 3.0f; 
+
+    [Tooltip("이 거리보다 가까이 가야만 [E] 안내 문구가 화면에 나타납니다.")]
+    public float maxPromptDistance = 1.3f; 
 
     float cameraXRotation = 0f;
     float yVelocity = 0f;
@@ -113,33 +117,43 @@ public class MainCharacter : MonoBehaviour
             Quaternion.Euler(cameraXRotation, 0f, 0f);
     }
 
-    // MainCharacter.cs 내부의 DetectObject() 수정 버전
     void DetectObject()
     {
+        // 화면 정중앙(크로스헤어)에서 레이저를 쏩니다.
         Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
         RaycastHit hit;
 
+        // 1차 검사: 일단 앞에 상호작용 가능한 물체가 있는지 레이저로 조준했는가?
         if (Physics.Raycast(ray, out hit, interactDistance))
         {
-            // 조준한 오브젝트에서 상호작용 컴포넌트를 찾습니다 (Item 또는 InspectableObject)
             IInteractable interactable = hit.collider.GetComponent<IInteractable>();
             
-            if (interactable != null)
+            // 2차 검사: 조준한 물체가 상호작용 대상이 맞고, '실제 거리(hit.distance)'가 설정한 최소 거리 이내인가?
+            if (interactable != null && hit.distance <= maxPromptDistance)
             {
-                // TODO: 화면 정중앙에 "[E] 조사하기" 혹은 "[E] 획득하기" UI 텍스트 띄우기
+                // 모든 조건 만족 시 오브젝트 위에 UI 표시
+                if (InteractionUI.Instance != null)
+                {
+                    InteractionUI.Instance.Show(interactable.GetPromptText(), hit.collider.transform);
+                }
                 
-                // 기획서 전역 규칙: 바라보는 상태에서 E키를 누르면 상호작용 작동
+                // E키 입력 처리
                 if (Input.GetKeyDown(KeyCode.E))
                 {
                     interactable.Interact();
                 }
+                
+                Debug.DrawRay(ray.origin, ray.direction * hit.distance, Color.green);
+                return; // UI를 계속 켜두기 위해 함수를 여기서 종료(리턴)합니다.
             }
-            
-            Debug.DrawRay(ray.origin, ray.direction * hit.distance, Color.green);
         }
-        else
+        
+        // 조건이 하나라도 안 맞으면 (고개를 돌렸거나, 거리가 멀어졌거나) 즉시 UI를 숨깁니다.
+        if (InteractionUI.Instance != null)
         {
-            Debug.DrawRay(ray.origin, ray.direction * interactDistance, Color.red);
+            InteractionUI.Instance.Hide();
         }
+        
+        Debug.DrawRay(ray.origin, ray.direction * interactDistance, Color.red);
     }
 }

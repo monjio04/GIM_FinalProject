@@ -318,13 +318,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 39dcd654994fc4cfb839222bb8665d30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainCharacter
-  walkSpeed: 3
-  runSpeed: 6
+  walkSpeed: 1
+  runSpeed: 3
   gravity: -9.8
   playerTransform: {fileID: 6839439362105334001}
   cameraTransform: {fileID: 123269765163659763}
   mouseSensitivity: 2
-  interactDistance: 5
+  interactDistance: 3
+  maxPromptDistance: 1.3
 --- !u!95 &3697020494901618040
 Animator:
   serializedVersion: 7
