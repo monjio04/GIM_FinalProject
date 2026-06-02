@@ -36,8 +36,10 @@ public class MainCharacter : MonoBehaviour
     void Update()
     {
         if ((InventoryUI.Instance != null && InventoryUI.Instance.inventoryBaseUI.activeSelf) || 
-            (TalkManager.Instance != null && TalkManager.Instance.ShouldFreezePlayer))
+            (TalkManager.Instance != null && TalkManager.Instance.ShouldFreezePlayer) ||
+            (QuestManager.Instance != null && QuestManager.Instance.IsPopUpActive))
         {
+            // 제자리에 서 있는 애니메이션 처리 후 리턴
             animator.SetFloat("Speed", 0f);
             return; 
         }
@@ -111,6 +113,7 @@ public class MainCharacter : MonoBehaviour
             Quaternion.Euler(cameraXRotation, 0f, 0f);
     }
 
+    // MainCharacter.cs 내부의 DetectObject() 수정 버전
     void DetectObject()
     {
         Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
@@ -118,18 +121,25 @@ public class MainCharacter : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit, interactDistance))
         {
+            // 조준한 오브젝트에서 상호작용 컴포넌트를 찾습니다 (Item 또는 InspectableObject)
             IInteractable interactable = hit.collider.GetComponent<IInteractable>();
             
             if (interactable != null)
             {
-                // TODO: UI에 "[E] 상호작용" 텍스트 띄우기
+                // TODO: 화면 정중앙에 "[E] 조사하기" 혹은 "[E] 획득하기" UI 텍스트 띄우기
                 
-                // E키를 눌렀을 때 상호작용 실행[cite: 1]
+                // 기획서 전역 규칙: 바라보는 상태에서 E키를 누르면 상호작용 작동
                 if (Input.GetKeyDown(KeyCode.E))
                 {
                     interactable.Interact();
                 }
             }
+            
+            Debug.DrawRay(ray.origin, ray.direction * hit.distance, Color.green);
+        }
+        else
+        {
+            Debug.DrawRay(ray.origin, ray.direction * interactDistance, Color.red);
         }
     }
 }

@@ -18,6 +18,18 @@ public class InventoryManager : MonoBehaviour
 
     void Update()
     {
+        // 1. 퀘스트 팝업 연출 중일 때는 인벤토리를 열지 못하도록 입력을 차단합니다.
+        if (QuestManager.Instance != null && QuestManager.Instance.IsPopUpActive)
+        {
+            return;
+        }
+
+        // 2. 어떤 형태로든 대화(독백/무전/NPC)가 나오고 있을 때도 인벤토리 입력을 차단합니다.
+        if (TalkManager.Instance != null && TalkManager.Instance.IsTalking)
+        {
+            return;
+        }
+
         // 게임 중에 언제든 'I' 키 입력을 감지합니다.
         if (Input.GetKeyDown(KeyCode.I))
         {
