@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1953259897 &8574412962073106934
+TerrainLayer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: L_Road_D2
+  m_DiffuseTexture: {fileID: 2800000, guid: d7049ebc04d647f4aba0a9946a3e1d19, type: 3}
+  m_NormalMapTexture: {fileID: 2800000, guid: bdb1d0e18e19bd74dafed458a18a7bf4, type: 3}
+  m_MaskMapTexture: {fileID: 2800000, guid: ae0ce01aa20e83c45b0be8b2cb7ed3bf, type: 3}
+  m_TileSize: {x: 2, y: 2}
+  m_TileOffset: {x: 0, y: 0}
+  m_Specular: {r: 0, g: 0, b: 0, a: 0}
+  m_Metallic: 0
+  m_Smoothness: 1
+  m_NormalScale: 1
+  m_DiffuseRemapMin: {x: 0, y: 0, z: 0, w: 0}
+  m_DiffuseRemapMax: {x: 1, y: 1, z: 1, w: 1}
+  m_MaskMapRemapMin: {x: 0, y: 0, z: 0, w: 0}
+  m_MaskMapRemapMax: {x: 0, y: 0, z: 0, w: 1}
+  m_SmoothnessSource: 1
