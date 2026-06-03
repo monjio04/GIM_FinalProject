@@ -39,15 +39,28 @@ public class MainCharacter : MonoBehaviour
 
     void Update()
     {
-        if ((InventoryUI.Instance != null && InventoryUI.Instance.inventoryBaseUI.activeSelf) || 
+        if ((InventoryUI.Instance != null && InventoryUI.Instance.inventoryBaseUI.activeSelf) ||
             (TalkManager.Instance != null && TalkManager.Instance.ShouldFreezePlayer) ||
             (QuestManager.Instance != null && QuestManager.Instance.IsPopUpActive))
         {
-            // 제자리에 서 있는 애니메이션 처리 후 리턴
             animator.SetFloat("Speed", 0f);
             return; 
         }
 
+        if (TalkManager.Instance != null && TalkManager.Instance.talkUI.activeSelf)
+        {
+            animator.SetFloat("Speed", 0f);
+            return;
+        }
+
+        if (PlayerHealth.Instance != null && PlayerHealth.Instance.IsExhausted)
+        {
+            // 애니메이션 속도를 0으로 만들어 제자리에 숨 고르는 자세로 만듭니다.
+            animator.SetFloat("Speed", 0f); 
+            return; // ◀ 중요! 여기서 꺾어서 아래 이동 함수들로 못 내려가게 차단합니다.
+        }
+
+        // 탈진이 아닐 때만 정상 조작 가능
         PlayerMovement();
         CameraLook();
         DetectObject();
