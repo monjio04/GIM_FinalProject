@@ -10,11 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0ce4eec9631944b529cd113e899cc038, type: 3}
-  m_Name: New Dialogue
+  m_Name: Mother_2
   m_EditorClassIdentifier: Assembly-CSharp::DialogueData
-  dialogueType: 0
+  dialogueType: 1
   freezePlayer: 1
   autoDisplayTime: 3
   speaker: 
   lines:
-  - ' '
+  - "\u2026\uC9C4\uC815\uD558\uC138\uC694, \uC5B4\uBA38\uB2C8.  "
+  - "\uC800\uD76C\uAC00 1 \uCE35\uACFC 2 \uCE35 \uB0B4\uBD80 \uC218\uC0C9\uC744 \uBC29\uAE08
+    \uAF3C\uAF3C\uD558\uAC8C \uC644\uB8CC\uD588\uC9C0\uB9CC \uC548\uC5D0\uB294 \uC774\uC81C
+    \uC544\uBB34\uB3C4 \uC5C6\uC2B5\uB2C8\uB2E4."

@@ -9,12 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0ce4eec9631944b529cd113e899cc038, type: 3}
-  m_Name: New Dialogue
-  m_EditorClassIdentifier: Assembly-CSharp::DialogueData
-  dialogueType: 0
-  freezePlayer: 1
-  autoDisplayTime: 3
-  speaker: 
-  lines:
-  - ' '
+  m_Script: {fileID: 11500000, guid: 6ae79093951da44348e52ba0d85d761b, type: 3}
+  m_Name: searchperson
+  m_EditorClassIdentifier: Assembly-CSharp::QuestData
+  questID: 3
+  title: "\uC0AC\uB78C\uC744 \uAD6C\uD558\uB77C"
+  description: 

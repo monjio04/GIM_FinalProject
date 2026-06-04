@@ -10,11 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0ce4eec9631944b529cd113e899cc038, type: 3}
-  m_Name: New Dialogue
+  m_Name: Firstdialogue
   m_EditorClassIdentifier: Assembly-CSharp::DialogueData
-  dialogueType: 0
+  dialogueType: 1
   freezePlayer: 1
   autoDisplayTime: 3
   speaker: 
   lines:
-  - ' '
+  - "\uD604\uC7A5 \uB3C4\uCC29... \uC0DD\uAC01\uBCF4\uB2E4 \uBD88\uAE38\uC774 \uD06C\uB2E4.
+    \uC7A5\uBE44 \uBA3C\uC800 \uCC59\uAE30\uC790."
