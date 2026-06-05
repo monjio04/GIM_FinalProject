@@ -10,7 +10,7 @@ public class TalkManager : MonoBehaviour
     public GameObject talkUI;
     public TextMeshProUGUI speakerText;
     public TextMeshProUGUI dialogueText;
-
+ 
     [Header("타자기 설정 (신규)")]
     [Tooltip("글자가 찍히는 속도입니다. 수치가 작을수록 빨라집니다.")]
     public float typeSpeed = 0.08f; 
