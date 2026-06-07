@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0ce4eec9631944b529cd113e899cc038, type: 3}
-  m_Name: test_dialogue
+  m_Name: run_Intro
   m_EditorClassIdentifier: Assembly-CSharp::DialogueData
   dialogueType: 1
   freezePlayer: 1
-  autoDisplayTime: 2
+  autoDisplayTime: 3
   speaker: 
   lines:
-  - "200\uBBF8\uD130 \uAC00\uB7C9 \uB0A8\uC558\uB098..."
-  - "\uC7A5\uBE44\uB294 25kg\uB2E4... \uC77C\uB2E8 \uCC59\uAE30\uC790"
+  - "... \uCC28\uB7C9 \uC9C4\uC785\uC740 \uD3EC\uAE30\uD55C\uB2E4! \uC9C0\uCCB4\uD560
+    \uC2DC\uAC04 \uC5C6\uC5B4, \uC7A5\uBE44 \uB4E4\uACE0 \uC9C1\uC811 \uB6F0\uC5B4\uAC04\uB2E4!"

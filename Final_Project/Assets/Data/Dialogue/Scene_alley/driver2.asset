@@ -10,12 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0ce4eec9631944b529cd113e899cc038, type: 3}
-  m_Name: example
+  m_Name: driver2
   m_EditorClassIdentifier: Assembly-CSharp::DialogueData
   dialogueType: 0
   freezePlayer: 1
   autoDisplayTime: 3
-  speaker: "\uC6B4\uC804\uB300\uC6D0"
+  speaker: "\uC6B4\uC804 \uB300\uC6D0"
   lines:
-  - "2\uBD84\uC774\uBA74 \uB3C4\uCC29\uD569\uB2C8\uB2E4."
-  - "\uBC18\uC7A5\uB2D8"
+  - "\uACE8\uBAA9\uAE38 \uC591\uC606\uC73C\uB85C \uBD88\uBC95 \uC8FC\uCC28\uB41C
+    \uCC28\uB7C9\uB4E4\uC774 \uAF49 \uB9C9\uD600\uC788\uC5B4\uC11C \uC18C\uBC29\uCC28\uAC00
+    \uB354 \uC774\uC0C1 \uB4E4\uC5B4\uAC08 \uC218\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4! "

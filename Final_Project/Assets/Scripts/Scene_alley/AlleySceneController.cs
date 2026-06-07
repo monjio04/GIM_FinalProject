@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Playables;
+using UnityEngine.UI;
 
 public class AlleySceneController : MonoBehaviour
 {
@@ -9,7 +11,7 @@ public class AlleySceneController : MonoBehaviour
 
     [Header("연동할 객체")]
     public Transform playerTransform;
-    public GameObject introBlackScreen; 
+    public CanvasGroup introBlackScreen; 
     public TextMeshProUGUI remainingDistanceText; 
 
     [Header("인게임 자체 자막 UI 연동")]
@@ -34,7 +36,16 @@ public class AlleySceneController : MonoBehaviour
 
     [Header("거리 시스템 설정")]
     public float totalTargetDistance = 200f;    
-    public Transform destinationTransform;      
+    public Transform destinationTransform;   
+
+    [Header("컷씬")]
+    public Camera mainCamera;
+    public Camera cutsceneCamera;
+    public PlayableDirector blockedRoadCutscene;
+
+    [Header("오디오 설정")]
+    public AudioSource audioSource;       // 소리를 재생할 오디오 소스 컴포넌트
+    public AudioClip brakeScreechClip;
 
     private float distanceTraveled;             
     private Vector3 lastPlayerPosition;         
@@ -64,45 +75,35 @@ public class AlleySceneController : MonoBehaviour
         if (subtitleParentUI != null) subtitleParentUI.SetActive(false);
 
         StartCoroutine(PlayIntroSequence());
+
+        introBlackScreen.alpha = 1f;
     }
 
     IEnumerator PlayIntroSequence()
     {
         isIntroActive = true;
-        introBlackScreen.SetActive(true); 
+        introBlackScreen.alpha=1f;
 
         yield return null; 
         yield return new WaitForSeconds(1.0f); 
 
-        // 1. 운전 대원 대사 재생
-        if (driverDialogue != null && TalkManager.Instance != null)
+    // 1. 운전 대원 대사 재생
+    if (driverDialogue != null && TalkManager.Instance != null)
+    {
+        if (TalkManager.Instance.talkUI != null)
         {
-            if (TalkManager.Instance.talkUI != null)
-            {
-                TalkManager.Instance.talkUI.SetActive(true);
-                TalkManager.Instance.talkUI.transform.SetAsLastSibling();
-            }
-
-            TalkManager.Instance.StartDialogue(driverDialogue);
-            yield return new WaitUntil(() => TalkManager.Instance.IsTalking == true); 
-            yield return new WaitWhile(() => TalkManager.Instance.IsTalking == true); 
+            TalkManager.Instance.talkUI.SetActive(true);
+            TalkManager.Instance.talkUI.transform.SetAsLastSibling();
         }
 
-        // 2. 주인공 최초 독백 재생
-        if (myIntroMonologue != null && TalkManager.Instance != null)
-        {
-            if (TalkManager.Instance.talkUI != null)
-            {
-                TalkManager.Instance.talkUI.transform.SetAsLastSibling();
-            }
+        TalkManager.Instance.StartDialogue(driverDialogue);
 
-            TalkManager.Instance.StartDialogue(myIntroMonologue);
-            yield return new WaitUntil(() => TalkManager.Instance.IsTalking == true);
-            yield return new WaitWhile(() => TalkManager.Instance.IsTalking == true);
-        }
+        yield return new WaitUntil(() => TalkManager.Instance.IsTalking == true);
+        yield return new WaitWhile(() => TalkManager.Instance.IsTalking == true);
+    }
 
-        // 3. 차에서 내림 (검은 화면 해제)
-        introBlackScreen.SetActive(false); 
+    // ===== 컷씬 재생 =====
+    yield return StartCoroutine(PlayBlockedRoadCutscene());
 
         // 4. 장비 분실 독백 재생
         if (itemLostMonologue != null && TalkManager.Instance != null)
@@ -120,6 +121,19 @@ public class AlleySceneController : MonoBehaviour
 
         // 6. 소방도끼 획득 대기
         yield return new WaitUntil(() => HasPickedUpTestItem());
+
+        // [안전장치] 획득 즉시 [E] 조사하기 UI 제거
+        if (InteractionUI.Instance != null)
+        {
+            InteractionUI.Instance.Hide();
+        }
+
+        // [안전장치] 아이템 스크립트에서 터진 획득 대사가 끝날 때까지 확실히 대기
+        if (TalkManager.Instance != null)
+        {
+            yield return new WaitUntil(() => TalkManager.Instance.IsTalking == true);
+            yield return new WaitWhile(() => TalkManager.Instance.IsTalking == true);
+        }
 
         // 7. 장비 수습 퀘스트 완료
         if (QuestManager.Instance != null)
@@ -267,5 +281,91 @@ public class AlleySceneController : MonoBehaviour
         }
         if (remainingDistanceText != null) remainingDistanceText.text = "현장 도착!";
         Debug.Log("200m 완주! 화재 현장 도착");
+    }
+
+    IEnumerator FadeOut(float duration)
+        {
+            float t = 0f;
+
+            while (t < duration)
+            {
+                t += Time.deltaTime;
+
+                introBlackScreen.alpha =
+                    Mathf.Lerp(0f, 1f, t / duration);
+
+                yield return null;
+            }
+
+            introBlackScreen.alpha = 1f;
+        }
+
+    IEnumerator FadeIn(float duration)
+    {
+        float t = 0f;
+
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+
+            introBlackScreen.alpha =
+                Mathf.Lerp(1f, 0f, t / duration);
+
+            yield return null;
+        }
+
+        introBlackScreen.alpha = 0f;
+    }
+
+    IEnumerator PlayBlockedRoadCutscene()
+    {
+        
+        // 2. 화면이 완전히 까만 상태에서 카메라 교체 및 타임라인 준비
+        mainCamera.enabled = false;
+        cutsceneCamera.enabled = true;
+
+        if (blockedRoadCutscene != null)
+        {
+            blockedRoadCutscene.Evaluate(); // 0초 시점 카메라 위치 강제 고정
+        }
+        yield return new WaitForEndOfFrame();
+
+        // 3. 암전 상태에서 급정거 효과음 재생
+        if (audioSource != null && brakeScreechClip != null)
+        {
+            audioSource.PlayOneShot(brakeScreechClip);
+            yield return new WaitForSeconds(brakeScreechClip.length); 
+        }
+        else
+        {
+            yield return new WaitForSeconds(0.5f);
+        }
+
+        // 4. 소리가 완전히 끝난 "직후" 타임라인을 재생하면서 화면을 밝힙니다!
+        if (blockedRoadCutscene != null)
+        {
+            blockedRoadCutscene.Play();
+        }
+        
+        yield return StartCoroutine(FadeIn(1f));
+
+        // 5. 1초 뒤 독백 대사 출력
+        yield return new WaitForSeconds(1f);
+        StartCoroutine(ShowInGameSubtitle(myIntroMonologue));
+
+        // 6. 컷씬 끝날 때까지 대기
+        float remainingCutsceneTime = (float)blockedRoadCutscene.duration - 1f;
+        if (remainingCutsceneTime > 0)
+        {
+            yield return new WaitForSeconds(remainingCutsceneTime);
+        }
+
+        // 7. 메인 게임으로 돌아오기 위한 암전 및 카메라 복귀
+        yield return StartCoroutine(FadeOut(1f));
+
+        cutsceneCamera.enabled = false;
+        mainCamera.enabled = true;
+
+        yield return StartCoroutine(FadeIn(1f));
     }
 }

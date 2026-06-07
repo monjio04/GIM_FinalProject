@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ce4eec9631944b529cd113e899cc038, type: 3}
   m_Name: 150m
   m_EditorClassIdentifier: Assembly-CSharp::DialogueData
-  dialogueType: 1
+  dialogueType: 0
   freezePlayer: 1
   autoDisplayTime: 2
-  speaker: 
+  speaker: "\uC8FC\uBBFC"
   lines:
-  - "\uB2E4\uB9AC\uAC00 \uB9CC\uC744 \uC548 \uB4E3\uB294\uB2E4..."
+  - "\uC800\uAE30 \uC544\uC9C1 \uC0AC\uB78C\uC774 \uC788\uC5B4\uC694!! \uC5BC\uB978
+    \uC5BC\uB978"

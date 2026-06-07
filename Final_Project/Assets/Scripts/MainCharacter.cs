@@ -130,8 +130,12 @@ public class MainCharacter : MonoBehaviour
             Quaternion.Euler(cameraXRotation, 0f, 0f);
     }
 
+
     void DetectObject()
     {
+        if (Camera.main == null)
+            return;
+
         // 화면 정중앙(크로스헤어)에서 레이저를 쏩니다.
         Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
         RaycastHit hit;
