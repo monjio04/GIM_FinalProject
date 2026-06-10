@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class PlayerHealth : MonoBehaviour
 {
@@ -9,12 +10,14 @@ public class PlayerHealth : MonoBehaviour
     public float currentHp;
 
     [Header("초당 HP 소모량 / 회복량")]
-    public float walkHpDrain = 3f;
+    [Tooltip("이제 걸을 때 이 수치만큼 초당 체력이 회복됩니다.")]
+    public float walkHpDrain = 3f; 
     public float runHpDrain = 8f;
     public float idleHpHeal = 5f;
 
     [Header("탈진(Exhausted) 설정")]
     public float restDuration = 3f;
+    public DialogueData exhaustedDialogue; 
     private float restTimer = 0f;
     private bool isExhausted = false;
     private bool isWaitingForDialogue = false;
@@ -55,43 +58,46 @@ public class PlayerHealth : MonoBehaviour
         // 질주 퀘스트 도중일 때는 대사창 유무와 상관없이 무조건 통과하도록 예외 처리
         if (TalkManager.Instance != null && TalkManager.Instance.talkUI.activeSelf)
         {
-            // [★수정]: 에러 방지를 위해 IsIntroActive 프로퍼티 대신 내장 함수(IsIntroActive)를 직접 호출하도록 우회
             if (AlleySceneController.Instance != null && !AlleySceneController.Instance.IsIntroActive())
             {
-                // 질주 중이므로 체력 소모 진행
+                // 질주 중이므로 체력 소모/회복 진행 가능
             }
             else return;
         }
 
+        // 이동 키 입력 여부 확인
         bool isMoving = Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0;
 
         if (controller != null && controller.isGrounded)
         {
             if (isMoving)
             {
-                float dynamicScale = 1f;
-                
-                // 골목길 질주 중일 때 체력 소모 속도를 3배로 보정
-                if (AlleySceneController.Instance != null && !AlleySceneController.Instance.IsIntroActive())
-                {
-                    dynamicScale = 3.0f;
-                }
-
+                // 1. 달리는 중일 때 (LeftShift 누름) -> 체력 소모
                 if (Input.GetKey(KeyCode.LeftShift))
                 {
+                    float dynamicScale = 1f;
+
+                    // 골목길 질주 중일 때 체력 소모 속도를 3배로 보정
+                    if (AlleySceneController.Instance != null && !AlleySceneController.Instance.IsIntroActive())
+                    {
+                        dynamicScale = 3.0f;
+                    }
+
                     TakeDamage(runHpDrain * dynamicScale * Time.deltaTime);
                 }
+                // 2. 그냥 걷는 중일 때 (LeftShift 안 누름) -> 체력 회복
                 else
                 {
-                    TakeDamage(walkHpDrain * dynamicScale * Time.deltaTime);
+                    Heal(walkHpDrain * Time.deltaTime);
                 }
             }
+            // 3. 가만히 서 있을 때 (Idle) -> 체력 회복
             else
             {
                 Heal(idleHpHeal * Time.deltaTime);
             }
         }
-    }
+    } // <-- 기존에 이 아래로 똑같은 로직이 중복 삽입되어 있던 에러 유발 지점을 삭제했습니다.
 
     public void TakeDamage(float amount)
     {
@@ -120,7 +126,18 @@ public class PlayerHealth : MonoBehaviour
     {
         isExhausted = true;
         restTimer = restDuration;
-        isWaitingForDialogue = false;
+        
+        if (exhaustedDialogue != null && TalkManager.Instance != null)
+        {
+            isWaitingForDialogue = true; 
+            TalkManager.Instance.StartDialogue(exhaustedDialogue);
+            
+            StartCoroutine(WaitForExhaustedDialogueEnd());
+        }
+        else
+        {
+            isWaitingForDialogue = false;
+        }
         
         Debug.Log("플레이어 탈진 상태 진입");
     }
@@ -138,8 +155,15 @@ public class PlayerHealth : MonoBehaviour
     {
         if (HealthUI.Instance != null)
         {
-            // 🎯 [★수정]: 에러나던 UpdateHealthBar 대신 원래 작성하셨던 SetHealth 함수명으로 복구!
             HealthUI.Instance.SetHealth(currentHp, maxHp);
         }
+    }
+
+    private IEnumerator WaitForExhaustedDialogueEnd()
+    {
+        yield return new WaitUntil(() => TalkManager.Instance.IsTalking == true);
+        yield return new WaitWhile(() => TalkManager.Instance.IsTalking == true);
+
+        isWaitingForDialogue = false;
     }
 }
