@@ -28,16 +28,16 @@ def merge_opacity_to_alpha(base_color_path, opacity_path, output_path, invert_op
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Merge a base color PNG with an opacity PNG as the alpha channel."
+        description="Merge a base color image with an opacity PNG as the alpha channel."
     )
     parser.add_argument(
         "--base",
-        default=SCRIPT_DIR / "Conditioner_Base_color.png",
-        help="Base color PNG path. Default: Conditioner_Base_color.png next to this script.",
+        default=SCRIPT_DIR / "dandelion_01_diff_1k.jpg",
+        help="Base color image path. Default: dandelion_01_diff_1k.jpg next to this script.",
     )
     parser.add_argument(
         "--opacity",
-        default=SCRIPT_DIR / "Conditioner_Opacity.png",
+        default=SCRIPT_DIR / "dandelion_01_alpha_1k.png",
         help="Opacity PNG path. White is opaque, black is transparent.",
     )
     parser.add_argument(

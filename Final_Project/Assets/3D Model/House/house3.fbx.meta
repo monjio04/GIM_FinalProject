@@ -3,7 +3,52 @@ guid: 6d6ce35109d582f4a95be22619d06394
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_AC
+    second: {fileID: 2100000, guid: bfa4b65106dcf9142b97c3ea467ba81e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_Border
+    second: {fileID: 2100000, guid: 2e12dcb3e8f9ca949b2a71c358e34044, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_Glass
+    second: {fileID: 2100000, guid: 580b94f07edc8e14aa79c4777ece45b7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_Roof
+    second: {fileID: 2100000, guid: 684009e0ed063a443a282e9f5700bd74, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_ShopDoor
+    second: {fileID: 2100000, guid: c25d4233fb669464b9f081f8d72f8763, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_ShopDoorRoof
+    second: {fileID: 2100000, guid: 525a827b9e940be409d7f834508a6f15, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_Sign
+    second: {fileID: 2100000, guid: 3000c7b2929e39f4aa4f1f76b7eb5dc2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_Wall
+    second: {fileID: 2100000, guid: e1447f5d897f56846b977861d26dc7ca, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_Window
+    second: {fileID: 2100000, guid: 1443ea88a53d16a45a11f9fb44324042, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
