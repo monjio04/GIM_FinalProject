@@ -137,7 +137,7 @@ public class MainCharacter : MonoBehaviour
             return;
 
         // 화면 정중앙(크로스헤어)에서 레이저를 쏩니다.
-        Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+        Ray ray = new Ray(cameraTransform.position,cameraTransform.forward);
         RaycastHit hit;
 
         // 1차 검사: 일단 앞에 상호작용 가능한 물체가 있는지 레이저로 조준했는가?

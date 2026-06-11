@@ -22,6 +22,10 @@ public class PlayerHealth : MonoBehaviour
     private bool isExhausted = false;
     private bool isWaitingForDialogue = false;
 
+    [Header("헐떡임 사운드")]
+    public AudioSource breathingSource;
+    public float breathingThreshold = 50f;
+
     private CharacterController controller;
     private bool isUIInitialized = false;
 
@@ -97,6 +101,8 @@ public class PlayerHealth : MonoBehaviour
                 Heal(idleHpHeal * Time.deltaTime);
             }
         }
+
+        HandleBreathingSound();
     } // <-- 기존에 이 아래로 똑같은 로직이 중복 삽입되어 있던 에러 유발 지점을 삭제했습니다.
 
     public void TakeDamage(float amount)
@@ -165,5 +171,25 @@ public class PlayerHealth : MonoBehaviour
         yield return new WaitWhile(() => TalkManager.Instance.IsTalking == true);
 
         isWaitingForDialogue = false;
+    }
+
+    private void HandleBreathingSound()
+    {
+        if (breathingSource == null) return;
+
+        if (currentHp <= breathingThreshold)
+        {
+            if (!breathingSource.isPlaying)
+                breathingSource.Play();
+
+            float t = 1f - (currentHp / breathingThreshold);
+
+            breathingSource.volume =
+                Mathf.Lerp(0.2f, 1.0f, t);
+        }
+        else
+        {
+            breathingSource.Stop();
+        }
     }
 }

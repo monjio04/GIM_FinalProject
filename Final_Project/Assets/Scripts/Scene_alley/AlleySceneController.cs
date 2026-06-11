@@ -43,9 +43,19 @@ public class AlleySceneController : MonoBehaviour
     public Camera cutsceneCamera;
     public PlayableDirector blockedRoadCutscene;
 
+    [Header("현장 도착")]
+    public DialogueData arrivedDialogue;
+
+    [Header("현장 도착 컷씬")]
+    public Camera arrivalCutsceneCamera;
+    public PlayableDirector arrivalCutscene;
+
     [Header("오디오 설정")]
-    public AudioSource audioSource;       // 소리를 재생할 오디오 소스 컴포넌트
+    public AudioSource audioSource;      // 급정거용
+    public AudioSource sirenSource;      // 사이렌용
+
     public AudioClip brakeScreechClip;
+    public AudioClip sirenClip;
 
     private float distanceTraveled;             
     private Vector3 lastPlayerPosition;         
@@ -64,28 +74,62 @@ public class AlleySceneController : MonoBehaviour
 
     void Start()
     {
+        // 시작은 인트로 컷씬 카메라가 담당
+        if (cutsceneCamera != null)
+        {
+            cutsceneCamera.gameObject.SetActive(true);
+            cutsceneCamera.enabled = true;
+        }
+
+        if (mainCamera != null)
+        {
+            mainCamera.enabled = true;
+        }
+
+        // 도착 컷씬 카메라만 처음에 꺼둠
+        if (arrivalCutsceneCamera != null)
+        {
+            arrivalCutsceneCamera.gameObject.SetActive(false);
+            arrivalCutsceneCamera.enabled = false;
+        }
+
+
         if (playerTransform != null)
         {
             lastPlayerPosition = playerTransform.position;
         }
 
-        if (remainingDistanceText != null) remainingDistanceText.gameObject.SetActive(false);
-        if (subtitleText != null) subtitleText.text = ""; 
-        if (speakerText != null) speakerText.text = "";
-        if (subtitleParentUI != null) subtitleParentUI.SetActive(false);
+        if (remainingDistanceText != null)
+            remainingDistanceText.gameObject.SetActive(false);
+
+        if (subtitleText != null)
+            subtitleText.text = "";
+
+        if (speakerText != null)
+            speakerText.text = "";
+
+        if (subtitleParentUI != null)
+            subtitleParentUI.SetActive(false);
 
         StartCoroutine(PlayIntroSequence());
 
         introBlackScreen.alpha = 1f;
     }
-
     IEnumerator PlayIntroSequence()
     {
         isIntroActive = true;
         introBlackScreen.alpha=1f;
 
         yield return null; 
-        yield return new WaitForSeconds(1.0f); 
+        yield return new WaitForSeconds(1.0f);
+
+        if (sirenSource != null && sirenClip != null)
+        {
+            sirenSource.clip = sirenClip;
+            sirenSource.loop = true;
+            sirenSource.volume = 0.2f;
+            sirenSource.Play();
+        } 
 
     // 1. 운전 대원 대사 재생
     if (driverDialogue != null && TalkManager.Instance != null)
@@ -194,13 +238,13 @@ public class AlleySceneController : MonoBehaviour
         if (remainingDistanceText != null)
         {
             float remaining = Mathf.Max(0f, totalTargetDistance - distanceTraveled);
-            remainingDistanceText.text = $"남은 거리: {Mathf.RoundToInt(remaining)}M";
+            remainingDistanceText.text = $"{Mathf.RoundToInt(remaining)}M";
         }
 
         if (distanceTraveled >= totalTargetDistance && !isTimelineEnded)
         {
             isTimelineEnded = true;
-            ReachedDestination();
+            StartCoroutine(ReachedDestinationSequence());
         }
     }
 
@@ -334,7 +378,12 @@ public class AlleySceneController : MonoBehaviour
         if (audioSource != null && brakeScreechClip != null)
         {
             audioSource.PlayOneShot(brakeScreechClip);
-            yield return new WaitForSeconds(brakeScreechClip.length); 
+            yield return new WaitForSeconds(brakeScreechClip.length);
+
+            if (sirenSource != null)
+            {
+                sirenSource.volume = 0.05f;
+            } 
         }
         else
         {
@@ -362,9 +411,142 @@ public class AlleySceneController : MonoBehaviour
 
         // 7. 메인 게임으로 돌아오기 위한 암전 및 카메라 복귀
         yield return StartCoroutine(FadeOut(1f));
+        if (blockedRoadCutscene != null)
+        {
+            blockedRoadCutscene.Stop();
+        }
 
         cutsceneCamera.enabled = false;
+        cutsceneCamera.gameObject.SetActive(false);
+
+
+        mainCamera.gameObject.SetActive(true);
         mainCamera.enabled = true;
+
+
+        yield return StartCoroutine(FadeIn(1f));
+
+        if (sirenSource != null)
+        {
+            sirenSource.volume = 0.005f;
+        }
+    }
+
+    IEnumerator ReachedDestinationSequence()
+    {
+        if (QuestManager.Instance != null)
+        {
+            QuestManager.Instance.CompleteQuest();
+        }
+
+        if (remainingDistanceText != null)
+        {
+            remainingDistanceText.text = "현장 도착!";
+        }
+
+        // 헐떡임 종료
+        if (PlayerHealth.Instance != null &&
+            PlayerHealth.Instance.breathingSource != null)
+        {
+            PlayerHealth.Instance.breathingSource.Stop();
+        }
+
+        yield return new WaitForSeconds(1f);
+
+        // 도착 대사
+        if (arrivedDialogue != null)
+        {
+            TalkManager.Instance.StartDialogue(arrivedDialogue);
+
+            yield return new WaitUntil(() => TalkManager.Instance.IsTalking);
+            yield return new WaitWhile(() => TalkManager.Instance.IsTalking);
+        }
+
+        // 현장 도착 컷씬
+        yield return StartCoroutine(PlayArrivalCutscene());
+
+        Debug.Log("현장 도착 컷씬 종료");
+    }
+
+    IEnumerator FadeOutWithAudio(float duration)
+    {
+        float t = 0f;
+
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+
+            float progress = t / duration;
+
+            introBlackScreen.alpha =
+                Mathf.Lerp(0f, 1f, progress);
+
+            AudioListener.volume =
+                Mathf.Lerp(1f, 0f, progress);
+
+            yield return null;
+        }
+
+        introBlackScreen.alpha = 1f;
+        AudioListener.volume = 0f;
+    }
+
+   IEnumerator PlayArrivalCutscene()
+    {
+        yield return StartCoroutine(FadeOutWithAudio(1f));
+
+
+        // 기존 카메라 OFF
+        mainCamera.enabled = false;
+
+
+        // 도착 컷씬 카메라 ON
+        arrivalCutsceneCamera.gameObject.SetActive(true);
+        arrivalCutsceneCamera.enabled = true;
+
+
+        if (arrivalCutscene != null)
+        {
+            arrivalCutscene.time = 0;
+            arrivalCutscene.Evaluate();
+        }
+
+
+        yield return new WaitForEndOfFrame();
+
+
+        AudioListener.volume = 1f;
+
+        yield return StartCoroutine(FadeIn(1f));
+
+
+        if (arrivalCutscene != null)
+        {
+            arrivalCutscene.Play();
+
+            yield return new WaitWhile(() =>
+                arrivalCutscene.state == PlayState.Playing);
+        }
+
+
+        yield return StartCoroutine(FadeOutWithAudio(1f));
+
+
+        if (arrivalCutscene != null)
+        {
+            arrivalCutscene.Stop();
+        }
+
+
+        arrivalCutsceneCamera.enabled = false;
+        arrivalCutsceneCamera.gameObject.SetActive(false);
+
+
+        mainCamera.enabled = true;
+
+
+        AudioListener.volume = 1f;
+
 
         yield return StartCoroutine(FadeIn(1f));
     }
