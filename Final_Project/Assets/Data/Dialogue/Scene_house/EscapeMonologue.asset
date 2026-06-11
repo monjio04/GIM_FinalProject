@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0ce4eec9631944b529cd113e899cc038, type: 3}
-  m_Name: Foundperson
+  m_Name: EscapeMonologue
   m_EditorClassIdentifier: Assembly-CSharp::DialogueData
   dialogueType: 1
   freezePlayer: 1
   autoDisplayTime: 3
   speaker: 
   lines:
-  - "\uCC3E\uC558\uB2E4. \uAC11\uC2DC\uB2E4, \uC774\uCABD\uC73C\uB85C\uC694! \uBE68\uB9AC!"
+  - "\uB300\uD53C \uC644\uB8CC. \uCCA0\uC218\uD55C\uB2E4."

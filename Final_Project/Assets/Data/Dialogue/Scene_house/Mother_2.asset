@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogueData
   dialogueType: 1
   freezePlayer: 1
-  autoDisplayTime: 3
+  autoDisplayTime: 2
   speaker: 
   lines:
   - "\u2026\uC9C4\uC815\uD558\uC138\uC694, \uC5B4\uBA38\uB2C8.  "

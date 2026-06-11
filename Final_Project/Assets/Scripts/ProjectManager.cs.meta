@@ -1,0 +1,28 @@
+fileFormatVersion: 2
+guid: faa2546951a834f479aa262724cc389d
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - firstDialogue: {instanceID: 0}
+  - questSCBA: {instanceID: 0}
+  - questPerson: {instanceID: 0}
+  - questEscape: {fileID: 11400000, guid: 309840411ef4a4cdb9002bafaf7be7d9, type: 2}
+  - escapeMonologue: {fileID: 11400000, guid: fc716e1f04b3d47f7a282d151af01c35, type: 2}
+  - radioDialogue: {fileID: 11400000, guid: 5e2f2868755594b71ad54b5b7ba3289c, type: 2}
+  - mother0Trigger: {fileID: 11400000, guid: e02edd869db5841aeb78d3d55d8ccde2, type: 2}
+  - silenceDialogue: {fileID: 11400000, guid: 108de26c91e4a4ea586f918e76d87942, type: 2}
+  - monologueDialogue: {fileID: 11400000, guid: 63e0a703a055a4989b39299db5fc2681, type: 2}
+  - scbaObject: {instanceID: 0}
+  - insideExitTrigger: {instanceID: 0}
+  - grandmaTrigger: {instanceID: 0}
+  - selectionUI: {instanceID: 0}
+  - grandmaTransform: {instanceID: 0}
+  - playerTransform: {instanceID: 0}
+  - outsideTeleportPoint: {instanceID: 0}
+  - fadeCanvasGroup: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
