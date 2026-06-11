@@ -25,6 +25,15 @@ public class InteractionUI : MonoBehaviour
 
     private void Update()
     {
+        if (TalkManager.Instance != null && TalkManager.Instance.IsTalking)
+        {
+            if (promptText.gameObject.activeSelf) 
+            {
+                Hide();
+            }
+            return; // 대화 중일 때는 아래 위치 갱신 로직을 타지 않음
+        }
+
         // 바라보는 타겟이 있고, UI가 켜져 있을 때만 매 프레임 위치를 갱신합니다.
         if (currentTarget != null && promptText.gameObject.activeSelf)
         {
@@ -40,6 +49,8 @@ public class InteractionUI : MonoBehaviour
                 promptText.transform.position = screenPos;
             }
         }
+
+        
     }
 
     // ★ 수정: 이제 텍스트 내용뿐만 아니라, 타겟 오브젝트의 위치(Transform)도 함께 받습니다.

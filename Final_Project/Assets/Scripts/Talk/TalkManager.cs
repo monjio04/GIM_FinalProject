@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -11,19 +12,19 @@ public class TalkManager : MonoBehaviour
     public TextMeshProUGUI speakerText;
     public TextMeshProUGUI dialogueText;
  
-    [Header("타자기 설정 (신규)")]
+    [Header("타자기 설정")]
     [Tooltip("글자가 찍히는 속도입니다. 수치가 작을수록 빨라집니다.")]
     public float typeSpeed = 0.08f; 
 
     private DialogueData currentDialogue;
     private int currentIndex;
     private bool isTalking;
+    private bool isSequenceActive = false; // 시퀀스 실행 여부 확인용 플래그
     private Action onDialogueEndCallback;
 
     public bool IsTalking => isTalking;
     public bool ShouldFreezePlayer => isTalking && currentDialogue != null && currentDialogue.freezePlayer;
 
-    // ★ 딱 하나만 존재해야 하는 Awake 함수
     private void Awake()
     {
         if (Instance == null) Instance = this;
@@ -32,7 +33,11 @@ public class TalkManager : MonoBehaviour
 
     public void StartDialogue(DialogueData dialogue, Action onEndCallback = null)
     {
-        StopAllCoroutines();
+        // 시퀀스 실행 중이 아닐 때만 기존 코루틴을 중단 (대화 끊김 방지)
+        if (!isSequenceActive)
+        {
+            StopAllCoroutines();
+        }
 
         currentDialogue = dialogue;
         currentIndex = 0;
@@ -67,9 +72,7 @@ public class TalkManager : MonoBehaviour
                 for (int i = 0; i < parts.Length; i++)
                 {
                     talkUI.SetActive(true);
-
                     yield return StartCoroutine(TypeTextRoutine(parts[i].Trim()));
-
                     yield return new WaitForSeconds(currentDialogue.autoDisplayTime);
 
                     if (i < parts.Length - 1)
@@ -84,10 +87,8 @@ public class TalkManager : MonoBehaviour
                 yield return StartCoroutine(TypeTextRoutine(line));
                 yield return new WaitForSeconds(currentDialogue.autoDisplayTime);
             }
-
             currentIndex++;
         }
-
         EndDialogue();
     }
 
@@ -95,7 +96,6 @@ public class TalkManager : MonoBehaviour
     {
         dialogueText.text = line;
         dialogueText.maxVisibleCharacters = 0; 
-
         int totalCharacters = line.Length;
 
         for (int i = 0; i <= totalCharacters; i++)
@@ -108,12 +108,40 @@ public class TalkManager : MonoBehaviour
     void EndDialogue()
     {
         isTalking = false;
-        talkUI.SetActive(false);
+        
+        // 시퀀스 진행 중이 아니면 UI를 끔
+        if (!isSequenceActive)
+        {
+            talkUI.SetActive(false);
+        }
 
         if (onDialogueEndCallback != null)
         {
             onDialogueEndCallback.Invoke();
             onDialogueEndCallback = null;
         }
+    }
+
+    public void StartDialogueSequence(DialogueData[] dialogues, Action onEndCallback = null)
+    {
+        isSequenceActive = true; 
+        StartCoroutine(DialogueSequenceRoutine(dialogues, onEndCallback));
+    }
+
+    IEnumerator DialogueSequenceRoutine(DialogueData[] dialogues, Action onEndCallback)
+    {
+        foreach (var d in dialogues)
+        {
+            if (d == null) continue;
+
+            bool isDone = false;
+            StartDialogue(d, () => { isDone = true; });
+            yield return new WaitUntil(() => isDone);
+            yield return new WaitForSeconds(0.2f);
+        }
+        
+        isSequenceActive = false; // 시퀀스 종료
+        talkUI.SetActive(false);  // UI 확실히 끄기
+        onEndCallback?.Invoke();
     }
 }

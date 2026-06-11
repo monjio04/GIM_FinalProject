@@ -26,7 +26,12 @@ public class ProjectManager : MonoBehaviour
     [Header("3. 순간이동 & 페이드 연출 연결")]
     public Transform playerTransform;        
     public Transform outsideTeleportPoint;   
-    public CanvasGroup fadeCanvasGroup;      
+    public CanvasGroup fadeCanvasGroup; 
+
+    [Header("할머니 이벤트 대사")]
+    public DialogueData grandma1Dialogue;
+    public DialogueData player2Dialogue;
+    public DialogueData grandma2Dialogue;     
 
     private int currentPhase = 0; 
 
@@ -168,17 +173,71 @@ public class ProjectManager : MonoBehaviour
 
     public void OnPlayerExitBuilding()
     {
-        if (currentPhase == 4)
+        // 페이즈 4(밖으로 나옴)일 때만 대화 시작 가능
+        if (currentPhase != 4) return; 
+
+        currentPhase = 5;
+
+        if (playerTransform != null && grandmaTransform != null)
+            StartCoroutine(ForceLookAtRoutine(grandmaTransform));
+
+        // 순차적으로 출력할 대사들 (silenceDialogue, monologueDialogue 포함)
+        DialogueData[] sequence = { 
+            mother0Trigger, grandma1Dialogue, player2Dialogue, 
+            grandma2Dialogue, silenceDialogue, monologueDialogue 
+        };
+
+        TalkManager.Instance.StartDialogueSequence(sequence, () =>
         {
-            currentPhase = 5;
-
-            if (playerTransform != null && grandmaTransform != null)
-                StartCoroutine(ForceLookAtRoutine(grandmaTransform));
-
-            TalkManager.Instance.StartDialogue(mother0Trigger, () => { Debug.Log("할머니 대화 가능"); });
-        }
+            // 모든 대사가 끝난 후 선택지 UI 활성화
+            if (selectionUI != null)
+            {
+                selectionUI.SetActive(true);
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+            }
+        });
     }
 
+    public void OnReachGrandmaTrigger()
+    {
+        // 페이즈 4에서만 작동
+        if (currentPhase != 4) return;
+        currentPhase = 5; // 자동 대사 시작
+
+        if (playerTransform != null && grandmaTransform != null)
+            StartCoroutine(ForceLookAtRoutine(grandmaTransform));
+
+        TalkManager.Instance.StartDialogue(mother0Trigger, () => {
+            // 자동 대사 종료 후, 이제 대화 준비 완료 상태 (페이즈는 그대로 5 유지)
+        });
+    }
+
+    // 2. E키를 눌렀을 때 (나머지 시퀀스 출력)
+    public void OnTalkToGrandma()
+    {
+        // 자동 대사(mother0)가 끝난 이후 상태(페이즈 5)라면 실행
+        // 혹은 혹시 모를 상황을 위해 페이즈 5 이상이면 실행되게 조건 완화
+        if (currentPhase < 5) return; 
+        
+        // 이미 대화 중이라면 다시 시작하지 않음 (이중 실행 방지)
+        if (TalkManager.Instance.IsTalking) return;
+
+        DialogueData[] sequence = { 
+            grandma1Dialogue, player2Dialogue, grandma2Dialogue, 
+            silenceDialogue, monologueDialogue 
+        };
+
+        TalkManager.Instance.StartDialogueSequence(sequence, () =>
+        {
+            if (selectionUI != null)
+            {
+                selectionUI.SetActive(true);
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+            }
+        });
+    }
     IEnumerator ForceLookAtRoutine(Transform target)
     {
         Vector3 direction = (target.position - playerTransform.position).normalized;

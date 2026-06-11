@@ -24,10 +24,12 @@ public class NPC_Talk : MonoBehaviour, IInteractable
 
     private void PlayDialogue(int index)
     {
-        // 준비된 대사를 다 틀었으면
-        if (index >= dialogueSequence.Length) 
+        Debug.Log($"PlayDialogue : {index}");
+
+        if (index >= dialogueSequence.Length)
         {
-            // ★ 신규 추가: ProjectManager에게 대화가 모두 끝났다고 보고합니다!
+            Debug.Log("모든 대사 종료");
+
             if (ProjectManager.Instance != null)
             {
                 ProjectManager.Instance.OnGrandmaTalkEnd();
@@ -35,8 +37,10 @@ public class NPC_Talk : MonoBehaviour, IInteractable
             return;
         }
 
-        TalkManager.Instance.StartDialogue(dialogueSequence[index], () => 
+        TalkManager.Instance.StartDialogue(dialogueSequence[index], () =>
         {
+            Debug.Log($"대사 {index} 종료");
+
             PlayDialogue(index + 1);
         });
     }
