@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ce4eec9631944b529cd113e899cc038, type: 3}
+  m_Name: Before_selection
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueData
+  dialogueType: 1
+  freezePlayer: 1
+  autoDisplayTime: 3
+  speaker: 
+  lines:
+  - "...\uC548\uC5D0 \uC544\uC9C1 \uC0AC\uB78C\uC774 \uC788\uB2E4\uB294 \uAC83 \uAC19\uB2E4..."
+  - "...\uBD84\uBA85 \uC870\uC0AC\uB294 \uBE60\uC9C4 \uACF3 \uC5C6\uC774 \uD588\uC744
+    \uD150\uB370... \uC6B0\uB9AC\uAC00 \uB193\uCE5C \uAC8C \uC788\uB294 \uAC78\uAE4C?"
+  - "\uBD88\uAE38\uC774 \uC544\uAE4C\uBCF4\uB2E4 \uD6E8\uC52C \uAC70\uC138\uC84C\uB2E4...
+    \uC0B0\uC18C\uB3C4 70 \uBC16\uC5D0 \uB0A8\uC9C0 \uC54A\uC558\uC5B4. "
+  - "\uC9C0\uAE08 \uB4E4\uC5B4\uAC00\uBA74 \uAC74\uBB3C \uC790\uCCB4\uAC00 \uBB34\uB108\uC9C8
+    \uC218\uB3C4 \uC788\uC5B4\uC11C \uC704\uD5D8\uD560\uC9C0\uB3C4 \uBAA8\uB978\uB2E4..."
+  - ...

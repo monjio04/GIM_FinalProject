@@ -10,8 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 501aeb8eaffde4b9ca6ff4e2ec5f45c8, type: 3}
-  m_Name: testItem
+  m_Name: SCBA
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemName: "\uB3C4\uB07C"
-  description: "\uB07C\uC554\uB2C8\uC544\uB7EC\u3163\u3141\u3134"
-  icon: {fileID: 10901, guid: 0000000000000000f000000000000000, type: 0}
+  itemName: "\uC0B0\uC18C\uD1B5"
+  description: "\uD604\uC7A5 \uC7A5\uBE44 \uBCF4\uAD00\uD568\uC5D0\uC11C \uAEBC\uB0B8
+    \uACF5\uAE30\uD638\uD761\uAE30. \uC794\uB7C9 100%. \uC774 \uB9C8\uC2A4\uD06C\uB97C
+    \uC4F0\uB294 \uC21C\uAC04\uBD80\uD130 \uC0B0\uC18C \uCE21\uC815\uC774 \uC2DC\uC791\uB41C\uB2E4. "
+  icon: {fileID: 0}
