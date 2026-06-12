@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ce4eec9631944b529cd113e899cc038, type: 3}
+  m_Name: Clue_3
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueData
+  dialogueType: 1
+  freezePlayer: 1
+  autoDisplayTime: 3
+  speaker: 
+  lines:
+  - "...\uCC3D\uBB38\uC774 \uAE68\uC838\uC788\uB2E4."
+  - ......
+  - "\uC774\uAC74 \uBA85\uBC31\uD55C \uB3C4\uC8FC\uC758 \uD754\uC801\uC774\uB2E4..."
+  - ......
+  - "\uB4A4\uC9D1\uD78C \uBC25\uC0C1. \uB110\uBE0C\uB7EC\uC9C4 \uC18C\uC8FC\uBCD1.
+    \uC548\uC5D0\uC11C \uC2DC\uC791\uB41C \uBD88. \uAE68\uC9C4 \uCC3D\uBB38. "
+  - "\uB204\uAD70\uAC00 \uC2F8\uC6C0 \uB4A4\uC5D0 \uACE0\uC758\uB85C \uC9D1\uC5D0
+    \uBD88\uC744 \uC9C8\uB800\uB2E4. \uADF8\uB9AC\uACE0 \uCC3D\uBB38\uC744 \uD1B5\uD574
+    \uB2EC\uC544\uB0AC\uB2E4... \uADF8\uB807\uAC8C\uBC16\uC5D0 \uBCFC \uC218 \uC5C6\uB2E4."
+  - "...\uADF8\uB9AC\uACE0 \uC544\uB9C8\uB3C4, \uC774 \uBAA8\uB4E0 \uAC74..."
+  - "\uC9D1\uC8FC\uC778\uC774 \uB9D0\uD55C \uC544\uB4E4\uC774 \uBC8C\uC778 \uC77C\uC778
+    \uAC83 \uAC19\uB2E4..."

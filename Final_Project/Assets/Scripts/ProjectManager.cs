@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement; 
 
 public class ProjectManager : MonoBehaviour
 {
@@ -10,18 +11,18 @@ public class ProjectManager : MonoBehaviour
     public QuestData questSCBA;              
     public QuestData questPerson;            
     public QuestData questEscape;  
-    public DialogueData escapeMonologue;     // ★ 신규: "대피 완료. 철수한다." 독백
+    public DialogueData escapeMonologue;     
     public DialogueData radioDialogue;       
     public DialogueData mother0Trigger;      
     public DialogueData silenceDialogue;     
     public DialogueData monologueDialogue;   
 
     [Header("2. 씬 오브젝트 연결")]
-    public GameObject scbaObject;            // ★ 신규: 바닥에 놓인 SCBA 장비 본체
-    public GameObject insideExitTrigger;     // ★ 신규: 건물 안쪽 문앞 투명 덫
-    public GameObject grandmaTrigger;        // 건물 밖 할머니 이벤트용 투명 덫
+    public GameObject scbaObject;            
+    public GameObject insideExitTrigger;     
+    public GameObject grandmaTrigger;        
     public GameObject selectionUI;           
-    public Transform grandmaTransform;       // 할머니 캡슐 본체
+    public Transform grandmaTransform;       
 
     [Header("3. 순간이동 & 페이드 연출 연결")]
     public Transform playerTransform;        
@@ -33,6 +34,24 @@ public class ProjectManager : MonoBehaviour
     public DialogueData player2Dialogue;
     public DialogueData grandma2Dialogue;     
 
+    [Header("5. 건물 재진입(4-B) 연출 연결")]
+    public CanvasGroup bloodScreenUI;      
+    public GameObject exitCollapseTrigger; 
+    public DialogueData reenterDialogue;   
+    public DialogueData collapseDialogue;  
+    public GameObject phase4BFolder;       
+    public QuestData questFindSon;         
+    private int clueFoundCount = 0;        
+
+    [Header("6. 단서 3 이후 탈출 연출")]
+    public Transform cameraTransform;            
+    public DialogueData escapeAfterClueDialogue; 
+    public QuestData questFinalEscape;           
+
+    [Header("7. 최종 붕괴 및 엔딩 연출")]
+    // 산소 파손 대본 변수는 지우고 무전기 대본만 남겼습니다.
+    public DialogueData finalRadioDialogue;   
+    
     private int currentPhase = 0; 
 
     private void Awake()
@@ -42,12 +61,16 @@ public class ProjectManager : MonoBehaviour
 
     private void Start()
     {
-        // 0번 문제 해결: 게임 시작 시 할머니 캡슐과 덫들을 모두 안 보이게 숨깁니다!
         if (insideExitTrigger != null) insideExitTrigger.SetActive(false);
         if (grandmaTrigger != null) grandmaTrigger.SetActive(false);
         if (selectionUI != null) selectionUI.SetActive(false);
         if (grandmaTransform != null) grandmaTransform.gameObject.SetActive(false); 
         if (fadeCanvasGroup != null) fadeCanvasGroup.alpha = 0f;
+        
+        if (bloodScreenUI != null) bloodScreenUI.alpha = 0f;
+        if (exitCollapseTrigger != null) exitCollapseTrigger.SetActive(false);
+
+        if (phase4BFolder != null) phase4BFolder.SetActive(false);
 
         TalkManager.Instance.StartDialogue(firstDialogue, () => 
         {
@@ -58,7 +81,6 @@ public class ProjectManager : MonoBehaviour
 
     private void Update()
     {
-        // 1, 2번 문제 해결: Item.cs를 안 건드리고, 맵에 있던 SCBA가 사라지면 획득한 것으로 간주!
         if (currentPhase == 1 && scbaObject == null)
         {
             currentPhase = 2; 
@@ -68,22 +90,18 @@ public class ProjectManager : MonoBehaviour
 
     IEnumerator ScbaObtainedRoutine()
     {
-        // SCBA 획득 즉시 산소 UI를 켭니다.
         if (OxygenManager.Instance != null && !OxygenManager.Instance.isO2Active)
         {
             OxygenManager.Instance.ActivateOxygen();
         }
 
-        // "공기잔량 100..." 대사가 끝날 때까지 얌전히 대기
         yield return new WaitUntil(() => !TalkManager.Instance.IsTalking);
 
-        // 대사가 끝나면 즉시 퀘스트 3 완료 후 퀘스트 4(사람 구하기) 시작
         QuestManager.Instance.CompleteQuest(); 
         yield return new WaitForSeconds(1.0f); 
         QuestManager.Instance.StartQuest(questPerson); 
     }
 
-    // 노인을 구출했을 때 호출됨
     public void OnNpcRescued()
     {
         if (currentPhase == 2)
@@ -95,7 +113,6 @@ public class ProjectManager : MonoBehaviour
 
     IEnumerator NpcRescuedRoutine()
     {
-        // "찾았다! 나갑시다!" 대사 대기
         yield return new WaitUntil(() => !TalkManager.Instance.IsTalking);
 
         if (OxygenManager.Instance != null) OxygenManager.Instance.DecreaseOxygen(30);
@@ -104,11 +121,9 @@ public class ProjectManager : MonoBehaviour
         yield return new WaitForSeconds(1.0f); 
         if (questEscape != null) QuestManager.Instance.StartQuest(questEscape);
 
-        // 3번 문제: 구출 직후가 아니라, 플레이어가 걸어나갈 '안쪽 문 덫'을 켜줍니다!
         if (insideExitTrigger != null) insideExitTrigger.SetActive(true);
     }
 
-    // 안쪽 문 앞 덫을 밟았을 때 호출됨 (텔레포트 시작)
     public void OnReachInsideExit()
     {
         if (currentPhase == 3)
@@ -120,7 +135,6 @@ public class ProjectManager : MonoBehaviour
 
     IEnumerator EscapeAndTeleportRoutine()
     {
-        // "대피 완료. 철수한다." 독백 출력
         bool isMonologueDone = false;
         if (escapeMonologue != null)
         {
@@ -128,7 +142,6 @@ public class ProjectManager : MonoBehaviour
             yield return new WaitUntil(() => isMonologueDone);
         }
 
-        // 무전 출력
         bool isRadioDone = false;
         if (radioDialogue != null)
         {
@@ -136,7 +149,6 @@ public class ProjectManager : MonoBehaviour
             yield return new WaitUntil(() => isRadioDone);
         }
 
-        // 화면 까매짐
         if (fadeCanvasGroup != null)
         {
             float elapsed = 0f;
@@ -144,7 +156,6 @@ public class ProjectManager : MonoBehaviour
             fadeCanvasGroup.alpha = 1f;
         }
 
-        // 텔레포트 실행
         if (playerTransform != null && outsideTeleportPoint != null)
         {
             CharacterController cc = playerTransform.GetComponent<CharacterController>();
@@ -156,13 +167,11 @@ public class ProjectManager : MonoBehaviour
             if (cc != null) cc.enabled = true; 
         }
 
-        // 텔레포트 완료 후, 할머니 캡슐과 밖의 덫을 뿅 하고 나타나게 합니다.
         if (grandmaTransform != null) grandmaTransform.gameObject.SetActive(true);
         if (grandmaTrigger != null) grandmaTrigger.SetActive(true);
 
         yield return new WaitForSeconds(1.0f); 
 
-        // 화면 밝아짐
         if (fadeCanvasGroup != null)
         {
             float elapsed = 0f;
@@ -173,15 +182,12 @@ public class ProjectManager : MonoBehaviour
 
     public void OnPlayerExitBuilding()
     {
-        // 페이즈 4(밖으로 나옴)일 때만 대화 시작 가능
         if (currentPhase != 4) return; 
-
         currentPhase = 5;
 
         if (playerTransform != null && grandmaTransform != null)
             StartCoroutine(ForceLookAtRoutine(grandmaTransform));
 
-        // 순차적으로 출력할 대사들 (silenceDialogue, monologueDialogue 포함)
         DialogueData[] sequence = { 
             mother0Trigger, grandma1Dialogue, player2Dialogue, 
             grandma2Dialogue, silenceDialogue, monologueDialogue 
@@ -189,7 +195,6 @@ public class ProjectManager : MonoBehaviour
 
         TalkManager.Instance.StartDialogueSequence(sequence, () =>
         {
-            // 모든 대사가 끝난 후 선택지 UI 활성화
             if (selectionUI != null)
             {
                 selectionUI.SetActive(true);
@@ -201,26 +206,18 @@ public class ProjectManager : MonoBehaviour
 
     public void OnReachGrandmaTrigger()
     {
-        // 페이즈 4에서만 작동
         if (currentPhase != 4) return;
-        currentPhase = 5; // 자동 대사 시작
+        currentPhase = 5; 
 
         if (playerTransform != null && grandmaTransform != null)
             StartCoroutine(ForceLookAtRoutine(grandmaTransform));
 
-        TalkManager.Instance.StartDialogue(mother0Trigger, () => {
-            // 자동 대사 종료 후, 이제 대화 준비 완료 상태 (페이즈는 그대로 5 유지)
-        });
+        TalkManager.Instance.StartDialogue(mother0Trigger, () => { });
     }
 
-    // 2. E키를 눌렀을 때 (나머지 시퀀스 출력)
     public void OnTalkToGrandma()
     {
-        // 자동 대사(mother0)가 끝난 이후 상태(페이즈 5)라면 실행
-        // 혹은 혹시 모를 상황을 위해 페이즈 5 이상이면 실행되게 조건 완화
         if (currentPhase < 5) return; 
-        
-        // 이미 대화 중이라면 다시 시작하지 않음 (이중 실행 방지)
         if (TalkManager.Instance.IsTalking) return;
 
         DialogueData[] sequence = { 
@@ -238,6 +235,7 @@ public class ProjectManager : MonoBehaviour
             }
         });
     }
+
     IEnumerator ForceLookAtRoutine(Transform target)
     {
         Vector3 direction = (target.position - playerTransform.position).normalized;
@@ -254,19 +252,183 @@ public class ProjectManager : MonoBehaviour
         playerTransform.rotation = targetRotation;
     }
 
-    public void OnGrandmaTalkEnd()
+    public void OnGrandmaTalkEnd() { }
+
+    public void SelectDoNotEnter()
     {
-        TalkManager.Instance.StartDialogue(silenceDialogue, () => 
+        SceneManager.LoadScene("Scene 4-A"); 
+    }
+
+    public void SelectEnterBuilding()
+    {
+        if (selectionUI != null) selectionUI.SetActive(false);
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+        
+        currentPhase = 6; 
+        
+        if (insideExitTrigger != null) insideExitTrigger.SetActive(false);
+        if (grandmaTrigger != null) grandmaTrigger.SetActive(false);
+
+        if (phase4BFolder != null) phase4BFolder.SetActive(true);
+
+        if (OxygenManager.Instance != null)
         {
-            TalkManager.Instance.StartDialogue(monologueDialogue, () => 
+            OxygenManager.Instance.currentO2 = 70;
+            OxygenManager.Instance.isO2Active = true;
+            if (OxygenManager.Instance.o2UIPanel != null) OxygenManager.Instance.o2UIPanel.SetActive(true);
+        }
+
+        if (reenterDialogue != null) 
+        {
+            TalkManager.Instance.StartDialogue(reenterDialogue, () => 
             {
-                if (selectionUI != null)
-                {
-                    selectionUI.SetActive(true);
-                    Cursor.lockState = CursorLockMode.None;
-                    Cursor.visible = true;
-                }
+                if (questFindSon != null) QuestManager.Instance.StartQuest(questFindSon);
             });
-        });
+        }
+    }
+
+    public void OnClueFound()
+    {
+        clueFoundCount++;
+        MainCharacter player = FindObjectOfType<MainCharacter>();
+
+        if (clueFoundCount == 1)
+        {
+            if (OxygenManager.Instance != null) OxygenManager.Instance.DecreaseOxygen(20); 
+            if (player != null) { player.walkSpeed *= 0.8f; player.runSpeed *= 0.8f; }
+        }
+        else if (clueFoundCount == 2)
+        {
+            if (OxygenManager.Instance != null) OxygenManager.Instance.DecreaseOxygen(20); 
+            if (player != null) { player.walkSpeed *= 0.8f; player.runSpeed *= 0.8f; }
+            if (bloodScreenUI != null) bloodScreenUI.alpha = 0.3f; 
+        }
+        else if (clueFoundCount >= 3)
+        {
+            if (OxygenManager.Instance != null) OxygenManager.Instance.DecreaseOxygen(20); 
+            if (player != null) { player.walkSpeed *= 0.8f; player.runSpeed *= 0.8f; }
+            if (bloodScreenUI != null) bloodScreenUI.alpha = 0.6f; 
+
+            StartCoroutine(Clue3EventRoutine());
+        }
+    }
+
+    IEnumerator Clue3EventRoutine()
+    {
+        yield return new WaitUntil(() => !TalkManager.Instance.IsTalking);
+
+        if (cameraTransform != null)
+        {
+            Vector3 originalPos = cameraTransform.localPosition;
+            float elapsed = 0f;
+            float duration = 1.0f; 
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float yOffset = Mathf.Sin(Time.time * 60f) * 0.15f; 
+                cameraTransform.localPosition = originalPos + new Vector3(0, yOffset, 0);
+                yield return null;
+            }
+            cameraTransform.localPosition = originalPos; 
+        }
+
+        bool isDialogueDone = false;
+        if (escapeAfterClueDialogue != null)
+        {
+            TalkManager.Instance.StartDialogue(escapeAfterClueDialogue, () => { isDialogueDone = true; });
+            yield return new WaitUntil(() => isDialogueDone); 
+        }
+
+        QuestManager.Instance.CompleteQuest();
+        yield return new WaitForSeconds(0.5f);
+        if (questFinalEscape != null)
+        {
+            QuestManager.Instance.StartQuest(questFinalEscape);
+        }
+
+        if (exitCollapseTrigger != null) exitCollapseTrigger.SetActive(true);
+    }
+
+    public void OnReachCollapsePoint()
+    {
+        StartCoroutine(CollapseRoutine());
+    }
+
+    // ★★★ 핵심 수정: O2 게이지 하락 연출로 변경! ★★★
+    IEnumerator CollapseRoutine()
+    {
+        // 1. "다 왔..." 대사 출력 후 대기
+        bool isCollapseDone = false;
+        if (collapseDialogue != null)
+        {
+            TalkManager.Instance.StartDialogue(collapseDialogue, () => { isCollapseDone = true; });
+            yield return new WaitUntil(() => isCollapseDone);
+        }
+
+        // 2. 다시 한 번 카메라 강진 (무너지는 연출)
+        if (cameraTransform != null)
+        {
+            Vector3 originalPos = cameraTransform.localPosition;
+            float elapsed = 0f;
+            float duration = 1.5f; 
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float yOffset = Mathf.Sin(Time.time * 80f) * 0.2f; 
+                cameraTransform.localPosition = originalPos + new Vector3(0, yOffset, 0);
+                yield return null;
+            }
+            cameraTransform.localPosition = originalPos; 
+        }
+
+        // 3. 잔해에 깔려 산소가 0으로 깎임 (UI 게이지 업데이트)
+        if (OxygenManager.Instance != null) 
+        {
+            OxygenManager.Instance.DecreaseOxygen(10); 
+        }
+        
+        // 4. 화면 빨갛게 페이드 아웃 (0.5초 만에 확 덮음)
+        if (bloodScreenUI != null)
+        {
+            float elapsed = 0f;
+            float startAlpha = bloodScreenUI.alpha;
+            while (elapsed < 0.5f)
+            {
+                elapsed += Time.deltaTime;
+                bloodScreenUI.alpha = Mathf.Lerp(startAlpha, 1f, elapsed / 0.5f);
+                yield return null;
+            }
+            bloodScreenUI.alpha = 1f;
+        }
+
+        // 5. 그 위를 서서히 검은색으로 덮음 (1.5초간)
+        if (fadeCanvasGroup != null)
+        {
+            float elapsed = 0f;
+            while (elapsed < 1.5f)
+            {
+                elapsed += Time.deltaTime;
+                fadeCanvasGroup.alpha = Mathf.Lerp(0f, 1f, elapsed / 1.5f);
+                yield return null;
+            }
+            fadeCanvasGroup.alpha = 1f;
+        }
+
+        // 6. 완전한 암전 속에서 3초 유지
+        yield return new WaitForSeconds(3.0f); 
+
+        // 7. 지지직... 마지막 무전기 대사 출력
+        bool isRadioDone = false;
+        if (finalRadioDialogue != null)
+        {
+            TalkManager.Instance.StartDialogue(finalRadioDialogue, () => { isRadioDone = true; });
+            yield return new WaitUntil(() => isRadioDone);
+        }
+
+        // 8. 무전이 끝나면 진엔딩(혹은 씬 5)로 넘어감!
+        SceneManager.LoadScene("Scene 5"); 
     }
 }
