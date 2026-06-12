@@ -149,13 +149,15 @@ public class AlleySceneController : MonoBehaviour
     // ===== 컷씬 재생 =====
     yield return StartCoroutine(PlayBlockedRoadCutscene());
 
-        // 4. 장비 분실 독백 재생
-        if (itemLostMonologue != null && TalkManager.Instance != null)
-        {
-            TalkManager.Instance.StartDialogue(itemLostMonologue);
-            yield return new WaitUntil(() => TalkManager.Instance.IsTalking == true);
-            yield return new WaitWhile(() => TalkManager.Instance.IsTalking == true);
-        }
+    if (itemLostMonologue != null && TalkManager.Instance != null)
+    {
+        bool isDone = false;
+        // 대화가 끝나면 isDone을 true로 바꿔주는 콜백을 넘김
+        TalkManager.Instance.StartDialogue(itemLostMonologue, () => { isDone = true; });
+        
+        // 이 방식은 WaitWhile보다 훨씬 안전합니다.
+        yield return new WaitUntil(() => isDone);
+    }
 
         // 5. 첫 번째 퀘스트 시작
         if (QuestManager.Instance != null && equipmentCheckQuest != null)

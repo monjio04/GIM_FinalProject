@@ -42,19 +42,26 @@ public class InventoryUI : MonoBehaviour
     // 아이템을 얻거나 잃었을 때 호출되어 화면을 갱신하는 함수
     public void UpdateInventoryUI()
     {
-        // 슬롯을 찾지 못했다면 에러 방지를 위해 리턴
         if (slots == null) return;
 
         List<ItemData> currentItems = InventoryManager.Instance.items;
 
         for (int i = 0; i < slots.Length; i++)
         {
-            // 가지고 있는 아이템 데이터가 배치된 슬롯 순서보다 작으면 데이터를 넣어줌
+            // 1. 슬롯 자체가 null인지 확인
+            if (slots[i] == null) continue; 
+
+            // 2. 슬롯의 아이콘이 연결 안 되어 있으면 넘어가기 (이게 에러를 막아줌)
+            if (slots[i].icon == null) 
+            {
+                Debug.LogWarning($"슬롯 {i}번 아이콘 연결이 끊겼습니다. 확인 필요.");
+                continue; 
+            }
+
             if (i < currentItems.Count)
             {
                 slots[i].SetItem(currentItems[i]);
             }
-            // 아이템이 없는 남은 빈 슬롯들은 비워둠
             else
             {
                 slots[i].ClearSlot();

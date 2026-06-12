@@ -33,6 +33,7 @@ public class TalkManager : MonoBehaviour
 
     public void StartDialogue(DialogueData dialogue, Action onEndCallback = null)
     {
+
         // 시퀀스 실행 중이 아닐 때만 기존 코루틴을 중단 (대화 끊김 방지)
         if (!isSequenceActive)
         {
