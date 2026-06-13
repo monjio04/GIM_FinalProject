@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 501aeb8eaffde4b9ca6ff4e2ec5f45c8, type: 3}
   m_Name: gloves
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemName: gloves
-  description: my gloves hello hello
+  itemName: "\uB0A1\uC740 \uBAA9\uC7A5\uAC11"
+  description: "\uBC29\uC5F4 \uC7A5\uAC11\uC774 \uC544\uB2C8\uB2E4. \uC2DC\uC7A5\uC5D0\uC11C
+    \uC2F8\uAC8C \uC0B0 \uC77C\uBC18 \uBAA9\uC7A5\uAC11. \n\uB0A1\uC544\uC11C \uC190\uAC00\uB77D
+    \uBD80\uBD84\uC774 \uC0B4\uC9DD \uB2F3\uC544 \uC788\uB2E4\n"
   icon: {fileID: 21300000, guid: de255951b62a549cf9904d10e87ac762, type: 3}
