@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement; 
+using UnityEngine.Playables; 
 
 public class ProjectManager : MonoBehaviour
 {
@@ -34,14 +35,21 @@ public class ProjectManager : MonoBehaviour
     public DialogueData player2Dialogue;
     public DialogueData grandma2Dialogue;     
 
-    [Header("5. 건물 재진입(4-B) 연출 연결")]
-    public CanvasGroup bloodScreenUI;      
+    [Header("5. 건물 재진입(4-B) 연출 연결")]     
     public GameObject exitCollapseTrigger; 
     public DialogueData reenterDialogue;   
     public DialogueData collapseDialogue;  
     public GameObject phase4BFolder;       
     public QuestData questFindSon;         
-    private int clueFoundCount = 0;        
+    private int clueFoundCount = 0;   
+    public CanvasGroup vignetteUI;   
+
+    [Header("4-B 건물 진입 컷씬")]
+    public Camera mainCamera;
+    public PlayableDirector enterCutscene; // PlayableDirector 연결
+    public Camera cutsceneCamera;          // 건물 진입 컷씬용 카메라
+    public Transform playerEnterStartPoint; // 컷씬 시작 시 플레이어 위치
+    public Transform playerEnterEndPoint;   // 컷씬 끝난 후 플레이어 위치  
 
     [Header("6. 단서 3 이후 탈출 연출")]
     public Transform cameraTransform;            
@@ -67,8 +75,9 @@ public class ProjectManager : MonoBehaviour
         if (grandmaTransform != null) grandmaTransform.gameObject.SetActive(false); 
         if (fadeCanvasGroup != null) fadeCanvasGroup.alpha = 0f;
         
-        if (bloodScreenUI != null) bloodScreenUI.alpha = 0f;
+        if (vignetteUI != null) vignetteUI.alpha = 0f;
         if (exitCollapseTrigger != null) exitCollapseTrigger.SetActive(false);
+        if (cutsceneCamera != null) cutsceneCamera.enabled = false;
 
         if (phase4BFolder != null) phase4BFolder.SetActive(false);
 
@@ -259,17 +268,98 @@ public class ProjectManager : MonoBehaviour
         SceneManager.LoadScene("Scene 4-A"); 
     }
 
+// 1. 선택지 UI에서 호출하는 함수
     public void SelectEnterBuilding()
     {
+        // 1. 선택지 UI 비활성화
         if (selectionUI != null) selectionUI.SetActive(false);
+        
+        // 마우스 커서는 대화가 완전히 끝날 때까지 잠그지 않거나, 
+        // 대화 시스템 정책에 따라 조정합니다 (여기선 일단 잠금)
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         
+        // 2. 먼저 대사를 시작합니다.
+        if (reenterDialogue != null) 
+        {
+            TalkManager.Instance.StartDialogue(reenterDialogue, () => 
+            {
+                // ★ 대화가 끝난 후 컷씬 코루틴 시작!
+                StartCoroutine(PlayEnterBuildingCutscene());
+            });
+        }
+        else
+        {
+            // 대사 데이터가 없으면 바로 컷씬 시작
+            StartCoroutine(PlayEnterBuildingCutscene());
+        }
+    }
+
+    IEnumerator PlayEnterBuildingCutscene()
+        {
+            if (InteractionUI.Instance != null) InteractionUI.Instance.Hide();
+            if (fadeCanvasGroup != null)
+        {
+            float elapsed = 0f;
+            while (elapsed < 1.0f) { elapsed += Time.deltaTime; fadeCanvasGroup.alpha = elapsed; yield return null; }
+            fadeCanvasGroup.alpha = 1f;
+        }
+
+        var cc = playerTransform.GetComponent<CharacterController>();
+        if (cc != null) cc.enabled = false;
+        
+        playerTransform.position = playerEnterStartPoint.position;
+        playerTransform.rotation = playerEnterStartPoint.rotation;
+
+        // 1. 카메라 전환
+        if (mainCamera != null) mainCamera.enabled = false; 
+        if (cutsceneCamera != null) cutsceneCamera.enabled = true;
+
+        // ★ 암전 상태에서 화면을 서서히 밝힘 (Fade In)
+        if (fadeCanvasGroup != null)
+        {
+            float elapsed = 0f;
+            while (elapsed < 1.0f) { elapsed += Time.deltaTime; fadeCanvasGroup.alpha = 1f - elapsed; yield return null; }
+            fadeCanvasGroup.alpha = 0f;
+        }
+
+        // 2. 컷씬 재생
+        if (enterCutscene != null)
+        {
+            enterCutscene.Play();
+            yield return new WaitForSeconds((float)enterCutscene.duration);
+        }
+
+        // ★ 종료 전 다시 암전 (Fade Out)
+        if (fadeCanvasGroup != null)
+        {
+            float elapsed = 0f;
+            while (elapsed < 1.0f) { elapsed += Time.deltaTime; fadeCanvasGroup.alpha = elapsed; yield return null; }
+            fadeCanvasGroup.alpha = 1f;
+        }
+
+        // 3. 카메라 복구 및 위치 이동
+        if (cutsceneCamera != null) cutsceneCamera.enabled = false;
+        if (mainCamera != null) mainCamera.enabled = true;
+        
+        playerTransform.position = playerEnterEndPoint.position;
+        playerTransform.rotation = playerEnterEndPoint.rotation;
+        
+        if (cc != null) cc.enabled = true;
+
+        // ★ 종료 후 화면 밝힘 (Fade In)
+        if (fadeCanvasGroup != null)
+        {
+            float elapsed = 0f;
+            while (elapsed < 1.0f) { elapsed += Time.deltaTime; fadeCanvasGroup.alpha = 1f - elapsed; yield return null; }
+            fadeCanvasGroup.alpha = 0f;
+        }
+
+        // 4. 나머지 진행 로직 (퀘스트 등)
         currentPhase = 6; 
         
         if (insideExitTrigger != null) insideExitTrigger.SetActive(false);
         if (grandmaTrigger != null) grandmaTrigger.SetActive(false);
-
         if (phase4BFolder != null) phase4BFolder.SetActive(true);
 
         if (OxygenManager.Instance != null)
@@ -279,13 +369,8 @@ public class ProjectManager : MonoBehaviour
             if (OxygenManager.Instance.o2UIPanel != null) OxygenManager.Instance.o2UIPanel.SetActive(true);
         }
 
-        if (reenterDialogue != null) 
-        {
-            TalkManager.Instance.StartDialogue(reenterDialogue, () => 
-            {
-                if (questFindSon != null) QuestManager.Instance.StartQuest(questFindSon);
-            });
-        }
+        // 퀘스트 시작은 컷씬 종료 후 실행
+        if (questFindSon != null) QuestManager.Instance.StartQuest(questFindSon);
     }
 
     public void OnClueFound()
@@ -293,24 +378,20 @@ public class ProjectManager : MonoBehaviour
         clueFoundCount++;
         MainCharacter player = FindObjectOfType<MainCharacter>();
 
-        if (clueFoundCount == 1)
-        {
-            if (OxygenManager.Instance != null) OxygenManager.Instance.DecreaseOxygen(20); 
-            if (player != null) { player.walkSpeed *= 0.8f; player.runSpeed *= 0.8f; }
-        }
-        else if (clueFoundCount == 2)
-        {
-            if (OxygenManager.Instance != null) OxygenManager.Instance.DecreaseOxygen(20); 
-            if (player != null) { player.walkSpeed *= 0.8f; player.runSpeed *= 0.8f; }
-            if (bloodScreenUI != null) bloodScreenUI.alpha = 0.3f; 
-        }
-        else if (clueFoundCount >= 3)
-        {
-            if (OxygenManager.Instance != null) OxygenManager.Instance.DecreaseOxygen(20); 
-            if (player != null) { player.walkSpeed *= 0.8f; player.runSpeed *= 0.8f; }
-            if (bloodScreenUI != null) bloodScreenUI.alpha = 0.6f; 
+        // 공통 로직: 산소 감소 및 속도 저하
+        if (OxygenManager.Instance != null) OxygenManager.Instance.DecreaseOxygen(20); 
+        if (player != null) { player.walkSpeed *= 0.8f; player.runSpeed *= 0.8f; }
 
-            StartCoroutine(Clue3EventRoutine());
+        // ★ 수정: 단서 갯수에 따라 비네트 알파값 서서히 증가
+        if (vignetteUI != null)
+        {
+            if (clueFoundCount == 1) vignetteUI.alpha = 0.3f;
+            else if (clueFoundCount == 2) vignetteUI.alpha = 0.6f;
+            else if (clueFoundCount >= 3)
+            {
+                vignetteUI.alpha = 0.9f;
+                StartCoroutine(Clue3EventRoutine());
+            }
         }
     }
 
@@ -391,20 +472,20 @@ public class ProjectManager : MonoBehaviour
         }
         
         // 4. 화면 빨갛게 페이드 아웃 (0.5초 만에 확 덮음)
-        if (bloodScreenUI != null)
+        if (vignetteUI != null)
         {
             float elapsed = 0f;
-            float startAlpha = bloodScreenUI.alpha;
+            float startAlpha = vignetteUI.alpha;
             while (elapsed < 0.5f)
             {
                 elapsed += Time.deltaTime;
-                bloodScreenUI.alpha = Mathf.Lerp(startAlpha, 1f, elapsed / 0.5f);
+                vignetteUI.alpha = Mathf.Lerp(startAlpha, 1f, elapsed / 0.5f);
                 yield return null;
             }
-            bloodScreenUI.alpha = 1f;
+            vignetteUI.alpha = 1f;
         }
 
-        // 5. 그 위를 서서히 검은색으로 덮음 (1.5초간)
+        // 5. 검은색 페이드 아웃 (이제 비네트가 1.0이니까 fadeCanvasGroup으로 전체 암전)
         if (fadeCanvasGroup != null)
         {
             float elapsed = 0f;
@@ -414,7 +495,6 @@ public class ProjectManager : MonoBehaviour
                 fadeCanvasGroup.alpha = Mathf.Lerp(0f, 1f, elapsed / 1.5f);
                 yield return null;
             }
-            fadeCanvasGroup.alpha = 1f;
         }
 
         // 6. 완전한 암전 속에서 3초 유지
@@ -429,6 +509,6 @@ public class ProjectManager : MonoBehaviour
         }
 
         // 8. 무전이 끝나면 진엔딩(혹은 씬 5)로 넘어감!
-        SceneManager.LoadScene("Scene 5"); 
+        SceneManager.LoadScene("outro"); 
     }
 }

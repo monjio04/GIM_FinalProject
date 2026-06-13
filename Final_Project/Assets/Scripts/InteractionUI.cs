@@ -13,8 +13,11 @@ public class InteractionUI : MonoBehaviour
 
     private Transform currentTarget; // 현재 바라보고 있는 오브젝트의 위치 정보
 
+    private Camera cam;
+
     private void Awake()
     {
+        cam = Camera.main;
         Instance = this;
     }
 
@@ -34,14 +37,26 @@ public class InteractionUI : MonoBehaviour
             return; // 대화 중일 때는 아래 위치 갱신 로직을 타지 않음
         }
 
+        if (ProjectManager.Instance != null && ProjectManager.Instance.fadeCanvasGroup != null)
+        {
+            if (ProjectManager.Instance.fadeCanvasGroup.alpha > 0.1f)
+            {
+                if (promptText.gameObject.activeSelf) Hide();
+                return;
+            }
+        }
+
         // 바라보는 타겟이 있고, UI가 켜져 있을 때만 매 프레임 위치를 갱신합니다.
         if (currentTarget != null && promptText.gameObject.activeSelf)
         {
+            if (cam == null) cam = Camera.main;
+            if (cam == null) return;
+
             // 1. 오브젝트의 실제 3D 위치에 오프셋(높이)을 더합니다.
             Vector3 worldPos = currentTarget.position + worldOffset;
 
             // 2. [핵심] 3D 좌표를 2D 모니터 화면 좌표로 변환합니다.
-            Vector3 screenPos = Camera.main.WorldToScreenPoint(worldPos);
+            Vector3 screenPos = cam.WorldToScreenPoint(worldPos);
 
             // 3. 카메라 뒤편에 있는 물체의 UI가 화면에 뒤집혀 그려지는 버그 방지 (Z축이 0보다 커야 카메라 앞임)
             if (screenPos.z > 0)

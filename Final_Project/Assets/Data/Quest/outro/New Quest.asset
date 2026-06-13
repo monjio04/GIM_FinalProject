@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ae79093951da44348e52ba0d85d761b, type: 3}
   m_Name: New Quest
   m_EditorClassIdentifier: Assembly-CSharp::QuestData
-  questID: 5
+  questID: 8
   title: "\uD604\uC7A5\uC744 \uC870\uC0AC\uD558\uC5EC \uC0AC\uAC74\uC758 \uC804\uB9D0\uC744
     \uD655\uC778\uD558\uC138\uC694"
   description: "\uD604\uC7A5\uC744 \uC870\uC0AC\uD558\uC5EC \uC0AC\uAC74\uC758 \uC804\uB9D0\uC744

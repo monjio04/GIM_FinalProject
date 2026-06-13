@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement; 
 
 public class AlleySceneController : MonoBehaviour
 {
@@ -53,6 +54,9 @@ public class AlleySceneController : MonoBehaviour
     [Header("오디오 설정")]
     public AudioSource audioSource;      // 급정거용
     public AudioSource sirenSource;      // 사이렌용
+
+    [Header("UI 제어")]
+    public GameObject healthUI;
 
     public AudioClip brakeScreechClip;
     public AudioClip sirenClip;
@@ -365,7 +369,7 @@ public class AlleySceneController : MonoBehaviour
 
     IEnumerator PlayBlockedRoadCutscene()
     {
-        
+        if (healthUI != null) healthUI.SetActive(false);   
         // 2. 화면이 완전히 까만 상태에서 카메라 교체 및 타임라인 준비
         mainCamera.enabled = false;
         cutsceneCamera.enabled = true;
@@ -424,6 +428,8 @@ public class AlleySceneController : MonoBehaviour
 
         mainCamera.gameObject.SetActive(true);
         mainCamera.enabled = true;
+
+        if (healthUI != null) healthUI.SetActive(true);
 
 
         yield return StartCoroutine(FadeIn(1f));
@@ -493,19 +499,25 @@ public class AlleySceneController : MonoBehaviour
         AudioListener.volume = 0f;
     }
 
-   IEnumerator PlayArrivalCutscene()
+    IEnumerator PlayArrivalCutscene()
     {
-        yield return StartCoroutine(FadeOutWithAudio(1f));
+        // [추가] 컷씬 시작 시 체력 UI 끄기
+        if (healthUI != null) healthUI.SetActive(false);
 
+        // [추가] 숨소리 끄기 (이미 Stop()을 호출하셨지만, 확실히 제어하기 위해 볼륨을 0으로)
+        if (PlayerHealth.Instance != null && PlayerHealth.Instance.breathingSource != null)
+        {
+            PlayerHealth.Instance.breathingSource.volume = 0f; 
+        }
+
+        yield return StartCoroutine(FadeOutWithAudio(1f));
 
         // 기존 카메라 OFF
         mainCamera.enabled = false;
 
-
         // 도착 컷씬 카메라 ON
         arrivalCutsceneCamera.gameObject.SetActive(true);
         arrivalCutsceneCamera.enabled = true;
-
 
         if (arrivalCutscene != null)
         {
@@ -513,43 +525,22 @@ public class AlleySceneController : MonoBehaviour
             arrivalCutscene.Evaluate();
         }
 
-
         yield return new WaitForEndOfFrame();
-
-
+        
+        // 오디오 리스너 볼륨 복구
         AudioListener.volume = 1f;
-
+        
         yield return StartCoroutine(FadeIn(1f));
-
 
         if (arrivalCutscene != null)
         {
             arrivalCutscene.Play();
-
-            yield return new WaitWhile(() =>
-                arrivalCutscene.state == PlayState.Playing);
+            yield return new WaitWhile(() => arrivalCutscene.state == PlayState.Playing);
         }
-
 
         yield return StartCoroutine(FadeOutWithAudio(1f));
 
-
-        if (arrivalCutscene != null)
-        {
-            arrivalCutscene.Stop();
-        }
-
-
-        arrivalCutsceneCamera.enabled = false;
-        arrivalCutsceneCamera.gameObject.SetActive(false);
-
-
-        mainCamera.enabled = true;
-
-
-        AudioListener.volume = 1f;
-
-
-        yield return StartCoroutine(FadeIn(1f));
+        // --- 씬 전환 ---
+        SceneManager.LoadScene("Scene_3"); 
     }
 }

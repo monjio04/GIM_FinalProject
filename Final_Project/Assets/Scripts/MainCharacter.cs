@@ -41,7 +41,8 @@ public class MainCharacter : MonoBehaviour
     {
         if ((InventoryUI.Instance != null && InventoryUI.Instance.inventoryBaseUI.activeSelf) ||
             (TalkManager.Instance != null && TalkManager.Instance.ShouldFreezePlayer) ||
-            (QuestManager.Instance != null && QuestManager.Instance.IsPopUpActive))
+            (QuestManager.Instance != null && QuestManager.Instance.IsPopUpActive) ||
+            (ProjectManager.Instance != null && ProjectManager.Instance.selectionUI.activeSelf))
         {
             animator.SetFloat("Speed", 0f);
             return; 
@@ -68,6 +69,8 @@ public class MainCharacter : MonoBehaviour
 
     void PlayerMovement()
     {
+        if (controller == null || !controller.enabled) return;
+
         float keyX = Input.GetAxis("Horizontal");
         float keyZ = Input.GetAxis("Vertical");
 
