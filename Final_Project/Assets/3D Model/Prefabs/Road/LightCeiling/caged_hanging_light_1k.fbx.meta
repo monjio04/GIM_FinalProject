@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 5106a122943402348b784ab0ed4536fe
+guid: 13294db439ac10f49816a8179c18af42
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
@@ -7,18 +7,8 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: M_Interior
-    second: {fileID: 2100000, guid: d7a512f2cfa22644091315095837e982, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: M_InteriorCeiling
-    second: {fileID: 2100000, guid: d7a512f2cfa22644091315095837e982, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: M_WindowGlass
-    second: {fileID: 2100000, guid: c223e036d82bc3341b384720d2969c2c, type: 2}
+      name: caged_hanging_light
+    second: {fileID: 2100000, guid: 2af0f93e9af620c4b8716de5898f1fa1, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
